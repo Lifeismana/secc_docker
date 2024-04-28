@@ -113,6 +113,7 @@ services:
       WATCHTOWER_SCHEDULE: 0 0 5 * * *
       WATCHTOWER_TIMEOUT: 5m
       WATCHTOWER_HTTP_API_METRICS: true
+      WATCHTOWER_HTTP_API_TOKEN: ${WATCHTOWER_TOKEN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.watchtower.rule=Host(`watchtower.internal.${MAIN_DOMAIN}`)"
