@@ -116,6 +116,13 @@ services:
       - "traefik.http.routers.watchtower.rule=Host(`watchtower.internal.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.watchtower.entrypoints=websecure"
       - "traefik.http.routers.watchtower.tls.certresolver=cloudflare_main"
+      - homepage.group=Main
+      - homepage.name=Watchtower
+      - homepage.icon=watchtower.png
+      - homepage.description=Watchtower
+      - homepage.widget.type=watchtower
+      - homepage.widget.url=https://watchtower.internal.${MAIN_DOMAIN}
+      - homepage.widget.key=${WATCHTOWER_TOKEN}
     restart: always
     networks:
       - my-net
