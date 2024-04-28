@@ -50,9 +50,6 @@ services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
-    environment:
-      PUID: 1000
-      PGID: 994
     volumes:
       - /data/homepage:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro
