@@ -1,0 +1,17 @@
+http:
+  routers:
+    nas:
+      rule: Host(`{{ env "NAS_NAME" }}.synology.me`)
+      service: nas
+      entryPoints:
+        - websecure
+      tls:
+  services:
+    nas:
+      loadBalancer:
+        servers:
+          - url: http://192.168.1.31:80/
+tls:
+  certificates:
+    - certFile: "/syno/FQDN/ECC-cert.pem"
+      keyFile: "/syno/FQDN/ECC-privkey.pem"

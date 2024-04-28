@@ -1,0 +1,224 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    env_file:
+      - traefik.env
+    environment:
+      - TZ=Europe/Paris
+      - NAS_NAME=${MAIN_NAS}
+    network_mode: "host"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /data/traefik:/data
+      - /home/cert-syno/cert:/syno:ro,uid=1001,gid=1001
+      - ./traefik/traefik_dynamic.yaml:/etc/traefik/traefik_dynamic.yaml
+    command: 
+      - "--api.dashboard=true"
+      - "--log.level=INFO"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yaml"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/data/traefik.log"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entryPoint.permanent=true"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls.certresolver=cloudflare_main"
+      - "--entrypoints.websecure.http.tls.domains[0].main=${MAIN_DOMAIN}"
+      - "--entrypoints.websecure.http.tls.domains[0].sans=*.${MAIN_DOMAIN}"
+      - "--entrypoints.websecure.http.tls.domains[1].main=*.internal.${MAIN_DOMAIN}"
+      - "--certificatesResolvers.cloudflare_main.acme.email=${CLOUDFLARE_EMAIL}"
+      - "--certificatesResolvers.cloudflare_main.acme.storage=/data/acme/acme.json"
+      - "--certificatesResolvers.cloudflare_main.acme.dnsChallenge.provider=cloudflare"
+      - "--certificatesResolvers.cloudflare_main.acme.dnsChallenge.delayBeforeCheck=120"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.justAdummyService.loadbalancer.server.port=1337"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.internal.${MAIN_DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=cloudflare_main"
+      - "traefik.http.routers.traefik.tls.domains[0].main=internal.${MAIN_DOMAIN}"
+      - "traefik.http.routers.traefik.tls.domains[0].sans=*.internal.${MAIN_DOMAIN}"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=tailscaleAL"
+      - "traefik.http.middlewares.tailscaleAL.ipAllowList.sourcerange=100.64.0.0/10, fd7a:115c:a1e0::/96"
+    restart: unless-stopped
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: always
+    #ports:
+    #  - '9000:9000'
+    volumes:
+      - /data/portainer:/data:uid=1000,gid=994
+    networks:
+      - my-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.middlewares=tailscaleAL"
+
+  endlessh:
+    container_name: endlessh
+    image: harshavardhanj/endlessh:latest
+    ports:
+    # TODO: change 222 to 22 when i'll have changed the ssh port on the server
+    - '22222:2222'
+    restart: always
+    networks:
+      - my-net
+  portainer_agent:
+    container_name: portainer_agent
+    image: portainer/agent
+    restart: always
+    #ports:
+    #  - 9001:9001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /docker_data/volumes:/var/lib/docker/volumes
+    networks:
+      - my-net
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      TZ: Europe/Paris
+      WATCHTOWER_CLEANUP: "true"
+      DOCKER_API_VERSION: 1.43
+      WATCHTOWER_SCHEDULE: 0 0 5 * * *
+      WATCHTOWER_TIMEOUT: 5m
+    restart: always
+    networks:
+      - my-net
+  cloudflare-ddns:
+    image: timothyjmiller/cloudflare-ddns:latest
+    container_name: cloudflare-ddns
+    security_opt:
+      - no-new-privileges:true
+    network_mode: "host"
+    environment:
+      - PUID=1000
+      - PGID=994
+    volumes:
+      - /data/cloudflareddns/config.json:/config.json
+    restart: unless-stopped
+  tailscale-cloudflare-dnssync:
+    image: ghcr.io/lifeismana/tailscale-cloudflare-dnssync:main
+    container_name: tailscale-cloudflare-dnssync
+    env_file:
+      - tailscale-cloudflare-dnssync.env
+    environment:
+      - PUID=1000
+      - PGID=994
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: always
+    env_file:
+      - postgres.env
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - /data_alt/postgres:/var/lib/postgresql/data
+      - /var/run/postgresql:/var/run/postgresql
+    networks:
+      - my-net
+  gitea:
+    image: gitea/gitea:nightly
+    container_name: gitea
+    restart: always
+    ports:
+      - 0.0.0.0:22:22
+    environment:
+      - USER_UID=103
+      - USER_GID=113
+    volumes:
+      - /data_alt/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitea.rule=Host(`git.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.gitea.entrypoints=websecure"
+      - "traefik.http.routers.gitea.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.gitea.loadbalancer.server.port=3000"
+    networks:
+      - my-net
+    depends_on:
+      - postgres
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - my-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 3s
+      retries: 30
+
+  redbot:
+    container_name: redbot
+    image: ghcr.io/lifeismana/docker-red-discordbot:full
+    restart: unless-stopped
+    volumes:
+      - /data_alt/redbot:/data
+      - /data_alt/.ssh/red_github/:/config/.ssh/
+      - /data_alt/.pylav-red/pylav.yaml:/config/pylav.yaml
+      - /var/run/postgresql:/var/run/postgresql
+      - /data_alt/.pylav-red/PyLav:/config/.config/PyLav     
+    environment:
+      - CUSTOM_REDBOT_PACKAGE=git+https://github.com/Cog-Creators/Red-DiscordBot.git@V3/develop#egg=Red-DiscordBot
+      - TZ=Europe/Paris
+      - EXTRA_ARGS=--dev --rpc #--mentionable
+    depends_on:
+      - postgres
+    network_mode: host
+  red-dashboard:
+    container_name: red-dashboard
+    image: ghcr.io/lifeismana/docker-red-dashboard:latest
+    restart: unless-stopped
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.reddash.rule=Host(`red-dashboard.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.reddash.entrypoints=websecure"
+      - "traefik.http.routers.reddash.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.reddash.loadbalancer.server.port=42356"
+    network_mode: host
+    command: ["bash", "-c", "source ~/reddashenv/bin/activate;reddash --host=0.0.0.0"]
+  #TODO: add back influxdb when i'll have fixed it
+  #TODO: add back grafana when i'll have fixed it (+ renderer)
+  asf:
+    container_name: asf
+    image: justarchi/archisteamfarm:released
+    command: --cryptkey-file /app/config/key
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - /data/asf/config:/app/config
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.asf.rule=Host(`asf.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.asf.entrypoints=websecure"
+      - "traefik.http.routers.asf.tls.certresolver=cloudflare_main"
+      - "traefik.http.routers.asf.middlewares=tailscaleAL"
+    networks:
+      - my-net
+
+networks:
+  my-net:
+    name: my-net
+    driver: bridge
