@@ -108,10 +108,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       TZ: Europe/Paris
-      WATCHTOWER_CLEANUP: "true"
-      DOCKER_API_VERSION: 1.43
+      WATCHTOWER_CLEANUP: true
+      DOCKER_API_VERSION: 1.45
       WATCHTOWER_SCHEDULE: 0 0 5 * * *
       WATCHTOWER_TIMEOUT: 5m
+      WATCHTOWER_HTTP_API_METRICS: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.watchtower.rule=Host(`watchtower.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.watchtower.entrypoints=websecure"
+      - "traefik.http.routers.watchtower.tls.certresolver=cloudflare_main"
     restart: always
     networks:
       - my-net
