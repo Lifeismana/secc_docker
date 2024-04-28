@@ -45,6 +45,12 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.middlewares=tailscaleAL"
       - "traefik.http.middlewares.tailscaleAL.ipAllowList.sourcerange=100.64.0.0/10, fd7a:115c:a1e0::/96, 172.16.0.0/12"
+      - homepage.group=Main
+      - homepage.name=Traefik
+      - homepage.icon=traefik.png
+      - homepage.description=Traefik
+      - homepage.widget.type=traefik
+      - homepage.widget.url=https://traefik.internal.${MAIN_DOMAIN}
     restart: unless-stopped
 
   homepage:
