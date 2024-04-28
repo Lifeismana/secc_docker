@@ -55,9 +55,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`home.${MAIN_DOMAIN}`)"
-      - "traefik.http.routers.portainer.entrypoints=websecure"
-      - "traefik.http.routers.portainer.tls.certresolver=cloudflare_main"
+      - "traefik.http.routers.homepage.rule=Host(`home.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.homepage.entrypoints=websecure"
+      - "traefik.http.routers.homepage.tls.certresolver=cloudflare_main"
     restart: unless-stopped
 
   portainer:
