@@ -77,6 +77,14 @@ services:
       - "traefik.http.routers.portainer.tls.certresolver=cloudflare_main"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
       - "traefik.http.routers.portainer.middlewares=tailscaleAL"
+      - homepage.group=Main
+      - homepage.name=Portainer
+      - homepage.icon=portainer.png
+      - homepage.description=Portainer
+      - homepage.widget.type=portainer
+      - homepage.widget.url=https://portainer.internal.${MAIN_DOMAIN}
+      - homepage.widget.env=3
+      - homepage.widget.key=${PORTAINER_TOKEN}
 
   endlessh:
     container_name: endlessh
