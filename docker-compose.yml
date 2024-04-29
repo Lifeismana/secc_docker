@@ -122,6 +122,31 @@ services:
       - homepage.widget.url=https://speedtest-tracker.internal.${MAIN_DOMAIN}
     networks:
       - my-net
+    
+  netalertx:
+    container_name: NetAlertX
+    hostname: NetAlertX
+    privileged: true
+    image: jokobsk/netalertx:latest
+    environment:
+      - TZ=Europe/Paris
+    restart: always
+    volumes:
+      - /data/netalertx/db:/app/db
+      - /data/netalertx/config:/app/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.netalertx.rule=Host(`netalertx.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.netalertx.entrypoints=websecure"
+      - "traefik.http.routers.netalertx.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.netalertx.loadbalancer.server.port=20211"
+      - homepage.group=Main
+      - homepage.name=NetAlertX
+      - homepage.icon=netalertx.png
+      - homepage.description=NetAlertX
+      - homepage.widget.type=netalertx
+      - homepage.widget.url=https://netalertx.internal.${MAIN_DOMAIN}
+    network_mode: host
 
   glances:
     image: nicolargo/glances:dev
