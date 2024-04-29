@@ -68,7 +68,7 @@ services:
 
   portainer:
     container_name: portainer
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:sts
     restart: always
     #ports:
     #  - '9000:9000'
@@ -103,7 +103,7 @@ services:
       - my-net
   portainer_agent:
     container_name: portainer_agent
-    image: portainer/agent
+    image: portainer/agent:2.20.1
     restart: always
     #ports:
     #  - 9001:9001
