@@ -123,7 +123,7 @@ services:
     networks:
       - my-net
 
-  monitoring:
+  glances:
     image: nicolargo/glances:dev
     container_name: glances
     restart: unless-stopped
@@ -267,6 +267,51 @@ services:
       timeout: 3s
       retries: 30
 
+  influxdb:
+    image: influxdb:2.2
+    container_name: influxdb
+    volumes:
+      - '/data_alt/influxdb:/var/lib/influxdb2'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+
+  scrutiny-web:
+    image: 'ghcr.io/analogj/scrutiny:master-web'
+    container_name: scrutiny-web
+    volumes:
+      - '/data/scrutiny:/opt/scrutiny/config'
+    environment:
+      - SCRUTINY_WEB_INFLUXDB_HOST=influxdb
+      # - SCRUTINY_WEB_INFLUXDB_TOKEN=your-very-secret-token
+      # - SCRUTINY_WEB_INFLUXDB_ORG=homelab
+      # - SCRUTINY_WEB_INFLUXDB_BUCKET=scrutiny
+      #TODO: add a notification system (maybe ?)
+      #- SCRUTINY_NOTIFY_URLS=["http://gotify:80/message?token=a-gotify-token"]
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.scrutiny.rule=Host(`scrutiny.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.scrutiny.entrypoints=websecure"
+      - "traefik.http.routers.scrutiny.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.scrutiny.loadbalancer.server.port=8080"
+      - homepage.group=Main
+      - homepage.name=Scrutiny
+      - homepage.icon=scrutiny.png
+      - homepage.description=Scrutiny
+      - homepage.widget.type=scrutiny
+      - homepage.widget.url=https://scrutiny.internal.${MAIN_DOMAIN}
+
   redbot:
     container_name: redbot
     image: ghcr.io/lifeismana/docker-red-discordbot:full
@@ -296,7 +341,6 @@ services:
       - "traefik.http.services.reddash.loadbalancer.server.port=42356"
     network_mode: host
     command: ["bash", "-c", "source ~/reddashenv/bin/activate;reddash --host=0.0.0.0"]
-  #TODO: add back influxdb when i'll have fixed it
   #TODO: add back grafana when i'll have fixed it (+ renderer)
   asf:
     container_name: asf
