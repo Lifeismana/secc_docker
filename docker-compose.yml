@@ -173,7 +173,7 @@ services:
       - homepage.widget.type=glances
       - homepage.widget.url=https://glances.internal.${MAIN_DOMAIN}
       - homepage.widget.version=4
-      - homepage.widget.metrics=info #,cpu,memory,process
+      - homepage.widget.metric=info #,cpu,memory,process
   endlessh:
     container_name: endlessh
     image: harshavardhanj/endlessh:latest
