@@ -307,6 +307,14 @@ services:
       interval: 5s
       timeout: 10s
       retries: 20
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.influxdb.rule=Host(`influxdb.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.influxdb.entrypoints=websecure"
+      - "traefik.http.routers.influxdb.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
+    networks:
+      - my-net
 
   scrutiny-web:
     image: 'ghcr.io/analogj/scrutiny:master-web'
@@ -320,6 +328,8 @@ services:
       # - SCRUTINY_WEB_INFLUXDB_BUCKET=scrutiny
       #TODO: add a notification system (maybe ?)
       #- SCRUTINY_NOTIFY_URLS=["http://gotify:80/message?token=a-gotify-token"]
+    env_file:
+      - scrutiny.env
     depends_on:
       influxdb:
         condition: service_healthy
@@ -341,6 +351,8 @@ services:
       - homepage.description=Scrutiny
       - homepage.widget.type=scrutiny
       - homepage.widget.url=https://scrutiny.internal.${MAIN_DOMAIN}
+    networks:
+      - my-net
 
   redbot:
     container_name: redbot
