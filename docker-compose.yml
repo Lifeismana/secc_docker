@@ -15,6 +15,7 @@ services:
       - ./traefik/traefik_dynamic.yaml:/etc/traefik/traefik_dynamic.yaml
     command: 
       - "--api.dashboard=true"
+      - "--metrics.prometheus=true" 
       - "--log.level=INFO"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
@@ -296,6 +297,37 @@ services:
       - /data_alt/redis:/data
     networks:
       - my-net
+
+# TODO: add thanos
+  prometheus:
+    container_name: prometheus
+    image: quay.io/prometheus/prometheus
+    restart: unless-stopped
+    user: 1000:1000
+    volumes:
+      - /data/prometheus:/etc/prometheus
+      - /data_alt/prometheus:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    networks:
+      - my-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+      - homepage.group=Main
+      - homepage.name=Prometheus
+      - homepage.icon=prometheus.png
+      - homepage.description=Prometheus
+      - homepage.widget.type=prometheus
+      - homepage.widget.url=https://prometheus.internal.${MAIN_DOMAIN}
 
   influxdb:
     image: influxdb:2.2
