@@ -422,7 +422,45 @@ services:
       - "traefik.http.services.reddash.loadbalancer.server.port=42356"
     network_mode: host
     command: ["bash", "-c", "source ~/reddashenv/bin/activate;reddash --host=0.0.0.0"]
-  #TODO: add back grafana when i'll have fixed it (+ renderer)
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ORG_NAME=Lifesismana
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      - GF_INSTALL_PLUGINS=marcusolsson-calendar-panel
+    user: 1000:1000
+    volumes:
+      - /data/grafana:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - homepage.group=Main
+      - homepage.name=Grafana
+      - homepage.icon=grafana.png
+      - homepage.description=Grafana
+      - homepage.widget.type=grafana
+      - homepage.widget.url=https://grafana.internal.${MAIN_DOMAIN}
+      - homepage.widget.username=${GRAFANA_USER}
+      - homepage.widget.password=${GRAFANA_PASSWORD}
+    networks:
+      - my-net     
+  renderer:
+    container_name: grafana-renderer
+    image: grafana/grafana-image-renderer:latest
+    restart: unless-stopped
+    depends_on: 
+      - grafana
+    networks:
+      - my-net 
+
   asf:
     container_name: asf
     image: justarchi/archisteamfarm:released
