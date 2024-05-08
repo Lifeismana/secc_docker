@@ -1,17 +1,14 @@
-http:
+tcp:
   routers:
     nas:
-      rule: Host(`{{ env "NAS_NAME" }}.synology.me`)
+      rule: HostSNI(`{{ env "NAS_NAME" }}.synology.me`) || HostSNIRegexp(`^.*\.{{ env "NAS_NAME" }}.synology.me$`)
       service: nas
       entryPoints:
         - websecure
       tls:
+        passthrough: true
   services:
     nas:
       loadBalancer:
         servers:
-          - url: http://192.168.1.31:80/
-tls:
-  certificates:
-    - certFile: "/syno/FQDN/ECC-cert.pem"
-      keyFile: "/syno/FQDN/ECC-privkey.pem"
+          - address: 192.168.1.31:443
