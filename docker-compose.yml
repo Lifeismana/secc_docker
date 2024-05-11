@@ -49,6 +49,7 @@ services:
       - homepage.group=Main
       - homepage.name=Traefik
       - homepage.icon=traefik.png
+      - homepage.href=https://traefik.internal.${MAIN_DOMAIN}
       - homepage.description=Traefik
       - homepage.widget.type=traefik
       - homepage.widget.url=https://traefik.internal.${MAIN_DOMAIN}
@@ -89,6 +90,7 @@ services:
       - homepage.name=Portainer
       - homepage.icon=portainer.png
       - homepage.description=Portainer
+      - homepage.href=https://portainer.internal.${MAIN_DOMAIN}
       - homepage.widget.type=portainer
       - homepage.widget.url=https://portainer.internal.${MAIN_DOMAIN}
       - homepage.widget.env=3
@@ -120,6 +122,7 @@ services:
       - homepage.name=Speedtest Tracker
       - homepage.icon=librespeed.png
       - homepage.description=Speedtest Tracker
+      - homepage.href=https://speedtest-tracker.internal.${MAIN_DOMAIN}
       - homepage.widget.type=speedtest
       - homepage.widget.url=https://speedtest-tracker.internal.${MAIN_DOMAIN}
     networks:
@@ -146,6 +149,7 @@ services:
       - homepage.name=NetAlertX
       - homepage.icon=netalertx.png
       - homepage.description=NetAlertX
+      - homepage.href=https://netalertx.internal.${MAIN_DOMAIN}
       - homepage.widget.type=netalertx
       - homepage.widget.url=https://netalertx.internal.${MAIN_DOMAIN}
     network_mode: host
@@ -172,6 +176,7 @@ services:
       - homepage.name=Glances
       - homepage.icon=glances.png
       - homepage.description=Glances
+      - homepage.href=https://glances.internal.${MAIN_DOMAIN}
       - homepage.widget.type=glances
       - homepage.widget.url=https://glances.internal.${MAIN_DOMAIN}
       - homepage.widget.version=4
@@ -326,6 +331,7 @@ services:
       - homepage.name=Prometheus
       - homepage.icon=prometheus.png
       - homepage.description=Prometheus
+      - homepage.href=https://prometheus.internal.${MAIN_DOMAIN}
       - homepage.widget.type=prometheus
       - homepage.widget.url=https://prometheus.internal.${MAIN_DOMAIN}
 
@@ -380,6 +386,7 @@ services:
       - homepage.group=Main
       - homepage.name=Scrutiny
       - homepage.icon=scrutiny.png
+      - homepage.href=https://scrutiny.internal.${MAIN_DOMAIN}
       - homepage.description=Scrutiny
       - homepage.widget.type=scrutiny
       - homepage.widget.url=https://scrutiny.internal.${MAIN_DOMAIN}
@@ -468,6 +475,7 @@ services:
       - homepage.name=Authentik
       - homepage.icon=authentik.png
       - homepage.description=Authentik
+      - homepage.href=https://authentik.internal.${MAIN_DOMAIN}
       - homepage.widget.type=authentik
       - homepage.widget.url=https://authentik.internal.${MAIN_DOMAIN}
       - homepage.widget.key=${AUTHENTIK_TOKEN}
