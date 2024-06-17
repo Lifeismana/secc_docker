@@ -486,7 +486,7 @@ services:
     environment:
       - TZ=Europe/Paris
     volumes:
-      - /data/steam-watcher:/app/config
+      - /data/steam-watcher:/usr/src/app/config/
     networks:
       - my-net
 
