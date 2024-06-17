@@ -479,6 +479,17 @@ services:
     networks:
       - my-net
 
+  steam-watcher:
+    container_name: steam-watcher
+    image: ghcr.io/lifeismana/steam-watcher:latest
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - /data/steam-watcher:/app/config
+    networks:
+      - my-net
+
   authentik-server:
     container_name: authentik-server
     image: ghcr.io/goauthentik/server:2024.4.1
