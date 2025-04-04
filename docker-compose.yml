@@ -511,6 +511,26 @@ services:
     networks:
       - my-net
 
+  grist:
+    image: gristlabs/grist:latest
+    container_name: grist
+    restart: unless-stopped
+    volumes:
+      - /data/grist:/data
+    environment:
+      - TZ=Europe/Paris
+      - GRIST_SERVER_URL=https://grist.internal.${MAIN_DOMAIN}
+      - GRIST_ADMIN_EMAIL=${GRIST_ADMIN_EMAIL}
+      - GRIST_ADMIN_PASSWORD=${GRIST_ADMIN_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grist.rule=Host(`grist.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.grist.entrypoints=websecure"
+      - "traefik.http.routers.grist.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.grist.loadbalancer.server.port=80"
+    networks:
+      - my-net
+
   authentik-server:
     container_name: authentik-server
     image: ghcr.io/goauthentik/server:2024.4.1
