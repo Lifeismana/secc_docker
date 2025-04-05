@@ -34,7 +34,7 @@ services:
       - "--certificatesResolvers.cloudflare_main.acme.email=${CLOUDFLARE_EMAIL}"
       - "--certificatesResolvers.cloudflare_main.acme.storage=/data/acme/acme.json"
       - "--certificatesResolvers.cloudflare_main.acme.dnsChallenge.provider=cloudflare"
-      - "--certificatesResolvers.cloudflare_main.acme.dnsChallenge.delayBeforeCheck=120"
+      - "--certificatesResolvers.cloudflare_main.acme.dnsChallenge.propagation.delayBeforeChecks=120"
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.justAdummyService.loadbalancer.server.port=1337"
