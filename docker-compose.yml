@@ -74,7 +74,7 @@ services:
   portainer:
     container_name: portainer
     image: portainer/portainer-ce:sts
-    restart: always
+    restart: unless-stopped
     #ports:
     #  - '9000:9000'
     volumes:
@@ -138,7 +138,7 @@ services:
     image: jokobsk/netalertx:latest
     environment:
       - TZ=Europe/Paris
-    restart: always
+    restart: unless-stopped
     volumes:
       - /data/netalertx/db:/app/db
       - /data/netalertx/config:/app/config
@@ -192,13 +192,13 @@ services:
     ports:
     # TODO: change 222 to 22 when i'll have changed the ssh port on the server
     - '22222:2222'
-    restart: always
+    restart: unless-stopped
     networks:
       - my-net
   portainer_agent:
     container_name: portainer_agent
     image: portainer/agent:2.28.1
-    restart: always
+    restart: unless-stopped
     #ports:
     #  - 9001:9001
     volumes:
@@ -232,7 +232,7 @@ services:
       - homepage.widget.type=watchtower
       - homepage.widget.url=https://watchtower.internal.${MAIN_DOMAIN}
       - homepage.widget.key=${WATCHTOWER_TOKEN}
-    restart: always
+    restart: unless-stopped
     networks:
       - my-net
   cloudflare-ddns:
@@ -260,7 +260,7 @@ services:
   postgres:
     image: postgres:14
     container_name: postgres
-    restart: always
+    restart: unless-stopped
     env_file:
       - postgres.env
     ports:
@@ -279,7 +279,7 @@ services:
   gitea:
     image: gitea/gitea:nightly
     container_name: gitea
-    restart: always
+    restart: unless-stopped
     ports:
       - 0.0.0.0:22:22
     environment:
