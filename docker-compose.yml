@@ -521,6 +521,32 @@ services:
     networks:
       - my-net
 
+  couchdb:
+    image: couchdb:latest
+    container_name: obsidian-livesync
+    user: 1000:1000
+    env_file:
+      - obsidian-livesync.env
+    restart: unless-stopped
+    volumes:
+      - /data/obsidian-livesync:/opt/couchdb/data
+    networks:
+      - my-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.obsidian-livesync.rule=Host(`obsidian-livesync.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.obsidian-livesync.entrypoints=websecure"
+      - "traefik.http.routers.obsidian-livesync.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.obsidian-livesync.loadbalancer.server.port=5984"
+      - "traefik.http.routers.obsidian-livesync.middlewares=tailscaleAL"
+      - "traefik.http.middlewares.obsidiancors.headers.accesscontrolallowmethods=GET,PUT,POST,HEAD,DELETE"
+      - "traefik.http.middlewares.obsidiancors.headers.accesscontrolallowheaders=accept,authorization,content-type,origin,referer"
+      - "traefik.http.middlewares.obsidiancors.headers.accesscontrolalloworiginlist=app://obsidian.md,capacitor://localhost,http://localhost"
+      - "traefik.http.middlewares.obsidiancors.headers.accesscontrolmaxage=3600"
+      - "traefik.http.middlewares.obsidiancors.headers.addvaryheader=true"
+      - "traefik.http.middlewares.obsidiancors.headers.accessControlAllowCredentials=true"
+
+
   authentik-server:
     container_name: authentik-server
     image: ghcr.io/goauthentik/server:2024.4.1
