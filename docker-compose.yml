@@ -575,7 +575,7 @@ services:
       - my-net
   authentik-proxy:
     container_name: authentik-proxy
-    image: ghcr.io/goauthentik/proxy:2024.4.1
+    image: ghcr.io/goauthentik/proxy:2025.2.3
     environment:
     
         AUTHENTIK_HOST: https://authentik.${MAIN_DOMAIN}
