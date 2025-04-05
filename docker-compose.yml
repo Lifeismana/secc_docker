@@ -265,6 +265,12 @@ services:
       - postgres.env
     ports:
       - 127.0.0.1:5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
     volumes:
       - /data_alt/postgres:/var/lib/postgresql/data
       - /var/run/postgresql:/var/run/postgresql
@@ -586,8 +592,10 @@ services:
       - homepage.widget.url=https://authentik.internal.${MAIN_DOMAIN}
       - homepage.widget.key=${AUTHENTIK_TOKEN}
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - my-net
   authentik-worker:
@@ -603,15 +611,16 @@ services:
     env_file:
       - authentik.env
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - my-net
   authentik-proxy:
     container_name: authentik-proxy
     image: ghcr.io/goauthentik/proxy:2025.2.3
     environment:
-    
         AUTHENTIK_HOST: https://authentik.${MAIN_DOMAIN}
         AUTHENTIK_INSECURE: "false"
         AUTHENTIK_TOKEN: ${AUTHENTIK_PROXY_TOKEN}
@@ -625,6 +634,11 @@ services:
         traefik.http.middlewares.authentik.forwardauth.trustForwardHeader: true
         traefik.http.middlewares.authentik.forwardauth.authResponseHeaders: X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - my-net
 
