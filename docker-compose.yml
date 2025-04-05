@@ -197,7 +197,7 @@ services:
       - my-net
   portainer_agent:
     container_name: portainer_agent
-    image: portainer/agent:2.20.1
+    image: portainer/agent:2.28.1
     restart: always
     #ports:
     #  - 9001:9001
