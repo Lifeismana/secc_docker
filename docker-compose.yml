@@ -591,15 +591,7 @@ services:
       - "traefik.http.routers.authentik.entrypoints=websecure"
       - "traefik.http.routers.authentik.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.authentik.service=authentik"
-      - "traefik.http.routers.authentik.middlewares=admin-redirect"
-      - "traefik.http.routers.authentik-admin.rule=Host(`authentik.internal.${MAIN_DOMAIN}`)"
-      - "traefik.http.routers.authentik-admin.entrypoints=websecure"
-      - "traefik.http.routers.authentik-admin.tls.certresolver=cloudflare_main"
-      - "traefik.http.routers.authentik-admin.service=authentik"
-      - "traefik.http.routers.authentik-admin.middlewares=tailscaleAL"
       - "traefik.http.services.authentik.loadbalancer.server.port=9000"
-      - "traefik.http.middlewares.admin-redirect.redirectregex.regex=^https://authentik.${MAIN_DOMAIN}/(if/admin/.*)"
-      - "traefik.http.middlewares.admin-redirect.redirectregex.replacement=https://authentik.internal.${MAIN_DOMAIN}/$${1}"
       - "traefik.http.middlewares.forwardAuth-authentik.forwardauth.address=https://authentik.${MAIN_DOMAIN}/outpost.goauthentik.io/auth/traefik"
       - "traefik.http.middlewares.forwardAuth-authentik.forwardauth.trustForwardHeader=true"
       - "traefik.http.middlewares.forwardAuth-authentik.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version"
@@ -607,9 +599,9 @@ services:
       - homepage.name=Authentik
       - homepage.icon=authentik.png
       - homepage.description=Authentik
-      - homepage.href=https://authentik.internal.${MAIN_DOMAIN}
+      - homepage.href=https://authentik.${MAIN_DOMAIN}
       - homepage.widget.type=authentik
-      - homepage.widget.url=https://authentik.internal.${MAIN_DOMAIN}
+      - homepage.widget.url=https://authentik.${MAIN_DOMAIN}
       - homepage.widget.key=${AUTHENTIK_TOKEN}
     depends_on:
       postgres:
