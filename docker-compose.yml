@@ -577,6 +577,36 @@ services:
       - "traefik.http.middlewares.obsidiancors.headers.addvaryheader=true"
       - "traefik.http.middlewares.obsidiancors.headers.accessControlAllowCredentials=true"
 
+  stirling-pdf:
+    container_name: stirling-pdf
+    image: ghcr.io/stirling-tools/stirling-pdf:latest-fat
+    restart: unless-stopped
+    env_file:
+      - stirling-pdf.env
+    volumes:
+      - /data/stirling-pdf/training-data:/usr/share/tessdata
+      - /data/stirling-pdf/extra-configs:/configs
+      - /data/stirling-pdf/custom-files:/customFiles
+      - /data/stirling-pdf/logs:/logs
+      - /data/stirling-pdf/pipeline:/pipeline
+    environment:
+      - DOCKER_ENABLE_SECURITY=true
+      - SECURITY_ENABLELOGIN=true
+      - SECURITY_OAUTH2_ENABLED=true
+      - SECURITY_OAUTH2_AUTOCREATEUSER=true
+      - SECURITY_OAUTH2_BLOCKREGISTRATION=false
+      - SECURITY_OAUTH2_SCOPES="openid, profile, email"
+      - SECURITY_OAUTH2_USEASUSERNAME=email
+      - SECURITY_OAUTH2_PROVIDER=authentik
+      - SECURITY_LOGINMETHOD=oauth2
+    networks:
+      - my-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stirling-pdf.rule=Host(`stirling-pdf.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.stirling-pdf.entrypoints=websecure"
+      - "traefik.http.routers.stirling-pdf.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.stirling-pdf.loadbalancer.server.port=8080"
 
   authentik-server:
     container_name: authentik-server
