@@ -110,12 +110,14 @@ services:
       - speedtest-tracker.env
     environment:
       - TZ=Europe/Paris
+      - DISPLAY_TIMEZONE=Europe/Paris
       - PUID=1000
       - PGID=994
       - DB_CONNECTION=pgsql
       - DB_HOST=postgres
-      - DB_DATABASE=speedtest_tracker
+      - DB_DATABASE=speedtest_trackerdb
       - DB_USERNAME=speedtest_tracker
+      - SPEEDTEST_SCHEDULE="10 */2 * * *"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.speedtest-tracker.rule=Host(`speedtest-tracker.internal.${MAIN_DOMAIN}`)"
