@@ -304,6 +304,12 @@ services:
     environment:
       - USER_UID=103
       - USER_GID=113
+      - GITEA__SERVICE__DISABLE_REGISTRATION=false
+      - GITEA__SERVICE__ENABLE_BASIC_AUTHENTICATION=false
+      - GITEA__SERVICE__ENABLE_PASSWORD_SIGNIN_FORM=false
+      - GITEA__SERVICE__ALLOW_ONLY_EXTERNAL_REGISTRATION=true
+      - GITEA__OAUTH2_CLIENT__ENABLE_AUTO_REGISTRATION=true
+      - GITEA__OPENID__ENABLE_OPENID_SIGNIN=false
     volumes:
       - /data_alt/gitea:/data
       - /etc/timezone:/etc/timezone:ro
