@@ -260,7 +260,7 @@ services:
     restart: unless-stopped
 
   postgres-14:
-    image: postgres:14
+    image: postgres:17
     container_name: postgres-14
     restart: unless-stopped
     env_file:
