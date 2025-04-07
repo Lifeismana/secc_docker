@@ -684,7 +684,23 @@ services:
     networks:
       - my-net
 
+  geoipupdate:
+    container_name: geoipupdate
+    restart: unless-stopped
+    image: "maxmindinc/geoipupdate:latest"
+    volumes:
+        - "geoip:/usr/share/GeoIP"
+    env_file:
+        - geoipupdate.env
+    environment:
+        GEOIPUPDATE_EDITION_IDS: "GeoLite2-City GeoLite2-ASN GeoLite2-Country"
+        GEOIPUPDATE_FREQUENCY: "8"
+
 networks:
   my-net:
     name: my-net
     driver: bridge
+
+volumes:
+  geoip:
+    driver: local
