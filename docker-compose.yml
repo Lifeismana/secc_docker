@@ -665,6 +665,19 @@ services:
     depends_on:
       - authentik-server
 
+  it-tools:
+    container_name: it-tools
+    image: ghcr.io/corentinth/it-tools:latest
+    restart: unless-stopped
+    networks:
+      - my-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.it-tools.rule=Host(`it-tools.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.it-tools.entrypoints=websecure"
+      - "traefik.http.routers.it-tools.tls.certresolver=cloudflare_main"
+      - wud.watch.digest=true
+
   authentik-server:
     container_name: authentik-server
     image: ghcr.io/goauthentik/server:2025.2.3
