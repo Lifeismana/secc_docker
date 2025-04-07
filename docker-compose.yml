@@ -139,7 +139,7 @@ services:
     container_name: NetAlertX
     hostname: NetAlertX
     privileged: true
-    image: jokobsk/netalertx:latest
+    image: ghcr.io/jokob-sk/netalertx:latest
     environment:
       - TZ=Europe/Paris
     restart: unless-stopped
@@ -408,7 +408,7 @@ services:
       - my-net
 
   scrutiny-web:
-    image: 'ghcr.io/analogj/scrutiny:master-web'
+    image: ghcr.io/analogj/scrutiny:master-web
     container_name: scrutiny-web
     volumes:
       - '/data/scrutiny:/opt/scrutiny/config'
@@ -518,7 +518,7 @@ services:
 
   asf:
     container_name: asf
-    image: justarchi/archisteamfarm:released
+    image: ghcr.io/justarchinet/archisteamfarm:released
     command: --cryptkey-file /app/config/key
     environment:
       - TZ=Europe/Paris
@@ -687,7 +687,7 @@ services:
   geoipupdate:
     container_name: geoipupdate
     restart: unless-stopped
-    image: "maxmindinc/geoipupdate:latest"
+    image: ghcr.io/maxmind/geoipupdate:latest
     volumes:
         - "geoip:/usr/share/GeoIP"
     env_file:
