@@ -55,6 +55,7 @@ services:
       - homepage.description=Traefik
       - homepage.widget.type=traefik
       - homepage.widget.url=https://traefik.internal.${MAIN_DOMAIN}
+      - wud.watch.digest=true
     restart: unless-stopped
 
   homepage:
@@ -71,6 +72,7 @@ services:
       - "traefik.http.routers.homepage.entrypoints=websecure"
       - "traefik.http.routers.homepage.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.homepage.middlewares=forwardAuth-authentik"
+      - wud.watch.digest=true
     restart: unless-stopped
 
   portainer:
@@ -99,6 +101,7 @@ services:
       - homepage.widget.url=https://portainer.internal.${MAIN_DOMAIN}
       - homepage.widget.env=3
       - homepage.widget.key=${PORTAINER_TOKEN}
+      - wud.watch.digest=true
 
   speedtest-tracker:
     container_name: speedtest-tracker
@@ -132,6 +135,7 @@ services:
       - homepage.href=https://speedtest-tracker.internal.${MAIN_DOMAIN}
       - homepage.widget.type=speedtest
       - homepage.widget.url=https://speedtest-tracker.internal.${MAIN_DOMAIN}
+      - wud.watch.digest=true
     networks:
       - my-net
     
@@ -160,6 +164,7 @@ services:
       - homepage.href=https://netalertx.internal.${MAIN_DOMAIN}
       - homepage.widget.type=netalertx
       - homepage.widget.url=https://netalertx.internal.${MAIN_DOMAIN}
+      - wud.watch.digest=true
     network_mode: host
 
   glances:
@@ -190,6 +195,7 @@ services:
       - homepage.widget.url=https://glances.internal.${MAIN_DOMAIN}
       - homepage.widget.version=4
       - homepage.widget.metric=info #,cpu,memory,process
+      - wud.watch.digest=true
   endlessh:
     container_name: endlessh
     image: harshavardhanj/endlessh:latest
@@ -208,6 +214,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /docker_data/volumes:/var/lib/docker/volumes
+    labels:
+      - wud.watch.digest=true
     networks:
       - my-net
   watchtower:
@@ -247,12 +255,15 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - TZ=Europe/Paris
+      - WUD_WATCHER_LOCAL_CRON=0 5 * * *
+      - WUD_WATCHER_LOCAL_WATCHALL=true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whatsupdocker.rule=Host(`whatsupdocker.internal.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.whatsupdocker.entrypoints=websecure"
       - "traefik.http.routers.whatsupdocker.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.whatsupdocker.middlewares=tailscaleAL"
+      - wud.watch.digest=true
   cloudflare-ddns:
     image: timothyjmiller/cloudflare-ddns:latest
     container_name: cloudflare-ddns
@@ -265,6 +276,8 @@ services:
     volumes:
       - /data/cloudflareddns/config.json:/config.json
     restart: unless-stopped
+    labels:
+      - wud.watch.digest=true
   tailscale-cloudflare-dnssync:
     image: ghcr.io/lifeismana/tailscale-cloudflare-dnssync:main
     container_name: tailscale-cloudflare-dnssync
@@ -274,6 +287,8 @@ services:
       - PUID=1000
       - PGID=994
     restart: unless-stopped
+    labels:
+      - wud.watch.digest=true
 
   postgres-14:
     image: postgres:14
@@ -290,6 +305,8 @@ services:
     volumes:
       - /data_alt/postgres-14:/var/lib/postgresql/data
       - /var/run/postgresql:/var/run/postgresql
+    labels:
+      - wud.watch=false
   
   postgres:
     image: postgres:17
@@ -309,6 +326,8 @@ services:
       - /data_alt/postgres:/var/lib/postgresql/data
     networks:
       - my-net
+    labels:
+      - wud.watch.digest=true
   gitea:
     image: gitea/gitea:nightly
     container_name: gitea
@@ -334,6 +353,7 @@ services:
       - "traefik.http.routers.gitea.entrypoints=websecure"
       - "traefik.http.routers.gitea.tls.certresolver=cloudflare_main"
       - "traefik.http.services.gitea.loadbalancer.server.port=3000"
+      - wud.watch.digest=true
     networks:
       - my-net
     depends_on:
@@ -353,6 +373,8 @@ services:
       - /data_alt/redis:/data
     networks:
       - my-net
+    labels:
+      - wud.watch.digest=true
 
 # TODO: add thanos
   prometheus:
@@ -386,6 +408,7 @@ services:
       - homepage.href=https://prometheus.internal.${MAIN_DOMAIN}
       - homepage.widget.type=prometheus
       - homepage.widget.url=https://prometheus.internal.${MAIN_DOMAIN}
+      - wud.watch.digest=true
 
   influxdb:
     image: influxdb:2.2
@@ -404,6 +427,7 @@ services:
       - "traefik.http.routers.influxdb.tls.certresolver=cloudflare_main"
       - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
       - "traefik.http.routers.influxdb.middlewares=tailscaleAL"
+      - wud.watch.digest=true
     networks:
       - my-net
 
@@ -444,6 +468,7 @@ services:
       - homepage.description=Scrutiny
       - homepage.widget.type=scrutiny
       - homepage.widget.url=https://scrutiny.internal.${MAIN_DOMAIN}
+      - wud.watch.digest=true
     networks:
       - my-net
 
@@ -461,6 +486,7 @@ services:
       - CUSTOM_REDBOT_PACKAGE=git+https://github.com/Cog-Creators/Red-DiscordBot.git@V3/develop#egg=Red-DiscordBot
       - TZ=Europe/Paris
       - EXTRA_ARGS=--dev --rpc #--mentionable
+      - wud.watch.digest=true
     depends_on:
       - postgres-14
     network_mode: host
@@ -474,6 +500,7 @@ services:
       - "traefik.http.routers.reddash.entrypoints=websecure"
       - "traefik.http.routers.reddash.tls.certresolver=cloudflare_main"
       - "traefik.http.services.reddash.loadbalancer.server.port=42356"
+      - wud.watch.digest=true
     network_mode: host
     command: ["bash", "-c", "source ~/reddashenv/bin/activate;reddash --host=0.0.0.0"]
 
@@ -505,6 +532,7 @@ services:
       - homepage.widget.url=https://grafana.internal.${MAIN_DOMAIN}
       - homepage.widget.username=${GRAFANA_USER}
       - homepage.widget.password=${GRAFANA_PASSWORD}
+      - wud.watch.digest=true
     networks:
       - my-net     
   renderer:
@@ -514,7 +542,9 @@ services:
     depends_on: 
       - grafana
     networks:
-      - my-net 
+      - my-net
+    labels:
+      - wud.watch.digest=true
 
   asf:
     container_name: asf
@@ -531,6 +561,7 @@ services:
       - "traefik.http.routers.asf.entrypoints=websecure"
       - "traefik.http.routers.asf.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.asf.middlewares=tailscaleAL"
+      - wud.watch.digest=true
     networks:
       - my-net
 
@@ -544,6 +575,8 @@ services:
       - /data/steam-watcher:/usr/src/app/config/
     networks:
       - my-net
+    labels:
+      - wud.watch.digest=true
 
   # myfeedcord:
   #   image: qolors/feedcord:latest # for amd64 architecture
@@ -565,6 +598,8 @@ services:
       - TZ=Europe/Paris
     networks:
       - my-net
+    labels:
+      - wud.watch.digest=true
 
   couchdb:
     image: couchdb:latest
@@ -590,6 +625,7 @@ services:
       - "traefik.http.middlewares.obsidiancors.headers.accesscontrolmaxage=3600"
       - "traefik.http.middlewares.obsidiancors.headers.addvaryheader=true"
       - "traefik.http.middlewares.obsidiancors.headers.accessControlAllowCredentials=true"
+      - wud.watch.digest=true
 
   stirling-pdf:
     container_name: stirling-pdf
@@ -621,6 +657,7 @@ services:
       - "traefik.http.routers.stirling-pdf.entrypoints=websecure"
       - "traefik.http.routers.stirling-pdf.tls.certresolver=cloudflare_main"
       - "traefik.http.services.stirling-pdf.loadbalancer.server.port=8080"
+      - wud.watch.digest=true
     depends_on:
       - authentik-server
 
@@ -659,6 +696,7 @@ services:
       - homepage.widget.type=authentik
       - homepage.widget.url=https://authentik.${MAIN_DOMAIN}
       - homepage.widget.key=${AUTHENTIK_TOKEN}
+      - wud.watch.digest=true
     depends_on:
       postgres:
         condition: service_healthy
@@ -666,6 +704,7 @@ services:
         condition: service_healthy
     networks:
       - my-net
+
   authentik-worker:
     container_name: authentik-worker
     image: ghcr.io/goauthentik/server:2025.2.3
@@ -687,6 +726,8 @@ services:
         condition: service_healthy
     networks:
       - my-net
+    labels:
+      - wud.watch.digest=true
 
   geoipupdate:
     container_name: geoipupdate
@@ -699,6 +740,8 @@ services:
     environment:
         GEOIPUPDATE_EDITION_IDS: "GeoLite2-City GeoLite2-ASN GeoLite2-Country"
         GEOIPUPDATE_FREQUENCY: "8"
+    labels:
+        - wud.watch.digest=true
 
 networks:
   my-net:
