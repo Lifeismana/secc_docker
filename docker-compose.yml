@@ -253,6 +253,7 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - whatsupdocker:/store
     env_file:
       - whats-up-docker.env
     environment:
@@ -768,3 +769,4 @@ networks:
 volumes:
   geoip:
     driver: local
+  whatsupdocker:
