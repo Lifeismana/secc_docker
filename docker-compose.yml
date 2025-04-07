@@ -253,10 +253,13 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - whats-up-docker.env
     environment:
       - TZ=Europe/Paris
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *
       - WUD_WATCHER_LOCAL_WATCHALL=true
+      - WUD_AUTH_OIDC_AUTHENTIK_REDIRECT=true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whatsupdocker.rule=Host(`whatsupdocker.internal.${MAIN_DOMAIN}`)"
