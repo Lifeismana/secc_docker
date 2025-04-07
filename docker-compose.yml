@@ -239,6 +239,20 @@ services:
     restart: unless-stopped
     networks:
       - my-net
+  whatsupdocker:
+    image: getwud/wud
+    container_name: whatsupdocker
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TZ=Europe/Paris
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whatsupdocker.rule=Host(`whatsupdocker.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.whatsupdocker.entrypoints=websecure"
+      - "traefik.http.routers.whatsupdocker.tls.certresolver=cloudflare_main"
+      - "traefik.http.routers.whatsupdocker.middlewares=tailscaleAL"
   cloudflare-ddns:
     image: timothyjmiller/cloudflare-ddns:latest
     container_name: cloudflare-ddns
