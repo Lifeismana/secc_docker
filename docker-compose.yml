@@ -329,7 +329,8 @@ services:
     labels:
       - wud.watch.digest=true
   gitea:
-    image: gitea/gitea:nightly
+    #TODO: change this once 1.24 is out (this is nightly 1.24)
+    image: gitea/gitea@sha256:480f78a782521cf34e6d816aed56bb0be2d5b601fba689a026759894db19beac
     container_name: gitea
     restart: unless-stopped
     ports:
