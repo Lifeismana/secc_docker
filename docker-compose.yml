@@ -595,7 +595,7 @@ services:
       - SECURITY_OAUTH2_ENABLED=true
       - SECURITY_OAUTH2_AUTOCREATEUSER=true
       - SECURITY_OAUTH2_BLOCKREGISTRATION=false
-      - SECURITY_OAUTH2_SCOPES="openid, profile, email"
+      - SECURITY_OAUTH2_SCOPES=openid, profile, email
       - SECURITY_OAUTH2_USEASUSERNAME=email
       - SECURITY_OAUTH2_PROVIDER=authentik
       - SECURITY_LOGINMETHOD=oauth2
@@ -607,6 +607,8 @@ services:
       - "traefik.http.routers.stirling-pdf.entrypoints=websecure"
       - "traefik.http.routers.stirling-pdf.tls.certresolver=cloudflare_main"
       - "traefik.http.services.stirling-pdf.loadbalancer.server.port=8080"
+    depends_on:
+      - authentik-server
 
   authentik-server:
     container_name: authentik-server
