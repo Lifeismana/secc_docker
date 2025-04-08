@@ -620,7 +620,8 @@ services:
       - obsidian-livesync.env
     restart: unless-stopped
     volumes:
-      - /data/obsidian-livesync:/opt/couchdb/data
+      - /data/obsidian-livesync/data:/opt/couchdb/data
+      - /data/obsidian-livesync/local.ini:/opt/couchdb/etc/local.ini
     networks:
       - my-net
     labels:
