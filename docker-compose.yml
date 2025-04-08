@@ -690,6 +690,19 @@ services:
       - "traefik.http.routers.it-tools.tls.certresolver=cloudflare_main"
       - wud.watch.digest=true
 
+  excalidraw:
+    container_name: excalidraw
+    image: excalidraw/excalidraw:latest
+    restart: unless-stopped
+    networks:
+      - my-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.excalidraw.rule=Host(`excalidraw.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.excalidraw.entrypoints=websecure"
+      - "traefik.http.routers.excalidraw.tls.certresolver=cloudflare_main"
+      - wud.watch.digest=true
+
   authentik-server:
     container_name: authentik-server
     image: ghcr.io/goauthentik/server:2025.2.3
