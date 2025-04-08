@@ -254,6 +254,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - whatsupdocker:/store
+    healthcheck:
+      test: curl --fail http://localhost:3000/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     env_file:
       - whats-up-docker.env
     environment:
