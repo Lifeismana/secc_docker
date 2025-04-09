@@ -13,6 +13,7 @@ services:
       - /data/traefik:/data
       - /home/cert-syno/cert:/syno:ro,uid=1001,gid=1001
       - ./traefik/traefik_dynamic.yaml:/etc/traefik/traefik_dynamic.yaml
+      - logs-traefik:/var/log/traefik
     command: 
       - "--api.dashboard=true"
       - "--metrics.prometheus=true" 
@@ -20,8 +21,8 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.file.filename=/etc/traefik/traefik_dynamic.yaml"
-      - "--accesslog=true"
-      - "--accesslog.filepath=/data/traefik.log"
+      - "--accesslog"
+      - "--accesslog.filepath=/var/log/traefik/access.log"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
@@ -37,6 +38,9 @@ services:
       - "--certificatesResolvers.cloudflare_main.acme.storage=/data/acme/acme.json"
       - "--certificatesResolvers.cloudflare_main.acme.dnsChallenge.provider=cloudflare"
       - "--certificatesResolvers.cloudflare_main.acme.dnsChallenge.propagation.delayBeforeChecks=120"
+      # crowdsec plugin
+      - "--experimental.plugins.crowdsec.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin"
+      - "--experimental.plugins.crowdsec.version=v1.4.2"
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.justAdummyService.loadbalancer.server.port=1337"
@@ -48,6 +52,11 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.middlewares=tailscaleAL"
       - "traefik.http.middlewares.tailscaleAL.ipAllowList.sourcerange=100.64.0.0/10, fd7a:115c:a1e0::/96, 172.16.0.0/12"
+      
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.forwardedheaderstrustedips=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32"
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecAppsecEnabled=true"
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecHost=crowdsec:7422"
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecLapiKey=${CROWDSEC_LAPI_KEY}"
       - homepage.group=Main
       - homepage.name=Traefik
       - homepage.icon=traefik.png
@@ -719,11 +728,15 @@ services:
     image: ghcr.io/crowdsecurity/crowdsec:latest
     restart: always
     environment:
-      - COLLECTIONS=LePresidente/gitea crowdsecurity/traefik
+      - COLLECTIONS=LePresidente/gitea crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules
+      - CUSTOM_HOSTNAME=crowdsec
+      - BOUNCER_KEY_TRAEFIK_DEV=${CROWDSEC_LAPI_KEY}
+      - GID=1000
     volumes:
       - /data/crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml
       - /data/crowdsec/db:/var/lib/crowdsec/data
       - /data/crowdsec/config:/etc/crowdsec
+      - logs-traefik:/var/log/traefik:ro
     networks:
       - my-net
     labels:
@@ -820,3 +833,4 @@ volumes:
   geoip:
     driver: local
   whatsupdocker:
+  logs-traefik:
