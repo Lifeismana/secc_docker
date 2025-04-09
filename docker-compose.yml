@@ -714,6 +714,21 @@ services:
       - "traefik.http.routers.excalidraw.tls.certresolver=cloudflare_main"
       - wud.watch.digest=true
 
+  crowdsec:
+    container_name: crowdsec
+    image: ghcr.io/crowdsecurity/crowdsec:latest
+    restart: always
+    environment:
+      - COLLECTIONS=LePresidente/gitea crowdsecurity/traefik
+    volumes:
+      - /data/crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml
+      - /data/crowdsec/db:/var/lib/crowdsec/data
+      - /data/crowdsec/config:/etc/crowdsec
+    networks:
+      - my-net
+    labels:
+      - wud.watch.digest=true
+
   authentik-server:
     container_name: authentik-server
     image: ghcr.io/goauthentik/server:2025.2.3
