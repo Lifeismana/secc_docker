@@ -7,7 +7,13 @@ services:
     environment:
       - TZ=Europe/Paris
       - NAS_NAME=${MAIN_NAS}
-    network_mode: "host"
+    networks:
+      - my-net
+    ports:
+      - '80:80'
+      - '443:443'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /data/traefik:/data
@@ -83,6 +89,8 @@ services:
       - "traefik.http.routers.homepage.middlewares=forwardAuth-authentik,crowdsec"
       - wud.watch.digest=true
     restart: unless-stopped
+    networks:
+      - my-net
 
   portainer:
     container_name: portainer
@@ -286,6 +294,8 @@ services:
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *
       - WUD_WATCHER_LOCAL_WATCHALL=true
       - WUD_AUTH_OIDC_AUTHENTIK_REDIRECT=true
+    networks:
+      - my-net
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whatsupdocker.rule=Host(`whatsupdocker.internal.${MAIN_DOMAIN}`)"
