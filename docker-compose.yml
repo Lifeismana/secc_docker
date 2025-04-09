@@ -214,6 +214,41 @@ services:
       - homepage.widget.version=4
       - homepage.widget.metric=info #,cpu,memory,process
       - wud.watch.digest=true
+
+  beszel:
+    container_name: beszel
+    image: ghcr.io/henrygd/beszel/beszel:0.10.2
+    restart: unless-stopped
+    networks:
+      - my-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - /data/beszel:/beszel_data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.beszel.rule=Host(`beszel.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.beszel.entrypoints=websecure"
+      - "traefik.http.routers.beszel.tls.certresolver=cloudflare_main"
+      - "traefik.http.routers.beszel.middlewares=tailscaleAL"
+      - wud.watch.digest=true
+
+  beszel-agent:
+    container_name: beszel-agent
+    image: ghcr.io/henrygd/beszel/beszel-agent:0.10.2
+    restart: unless-stopped
+    network_mode: "host"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /.beszel:/extra-filesystems/disk1:ro
+      - /data_alt/.beszel:/extra-filesystems/disk2:ro
+      - /data/.beszel:/extra-filesystems/disk3:ro
+      - /docker_data/.beszel:/extra-filesystems/disk4:ro
+    environment:
+      - LISTEN=45876
+    env_file:
+      - beszel-agent.env
+
   endlessh:
     container_name: endlessh
     image: shizunge/endlessh-go:latest
