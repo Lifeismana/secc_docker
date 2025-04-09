@@ -59,10 +59,11 @@ services:
       - "traefik.http.routers.traefik.middlewares=tailscaleAL"
       - "traefik.http.middlewares.tailscaleAL.ipAllowList.sourcerange=100.64.0.0/10, fd7a:115c:a1e0::/96, 172.16.0.0/12"
       - "traefik.http.middlewares.crowdsec.plugin.crowdsec.enabled=true"
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecmode=stream"
       - "traefik.http.middlewares.crowdsec.plugin.crowdsec.forwardedheaderstrustedips=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32"
       - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecAppsecEnabled=true"
-      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecHost=crowdsec:7422"
       - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecLapiKey=${CROWDSEC_LAPI_KEY}"
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecappsechost=crowdsec:7422"
       - homepage.group=Main
       - homepage.name=Traefik
       - homepage.icon=traefik.png
@@ -742,7 +743,7 @@ services:
     restart: always
     environment:
       - COLLECTIONS=LePresidente/gitea crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules
-      - CUSTOM_HOSTNAME=crowdsec
+      - CUSTOM_HOSTNAME=DockerMonster
       - BOUNCER_KEY_traefikBouncer=${CROWDSEC_LAPI_KEY}
       - GID=1000
     volumes:
