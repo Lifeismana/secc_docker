@@ -448,6 +448,8 @@ services:
       - "traefik.http.services.gitea.loadbalancer.server.port=3000"
       - "traefik.http.routers.gitea.middlewares=crowdsec"
       - wud.watch.digest=true
+      - crowdsec.enable=true
+      - crowdsec.labels.type=gitea
     networks:
       - my-net
     depends_on:
@@ -794,7 +796,7 @@ services:
     image: ghcr.io/crowdsecurity/crowdsec:latest
     restart: always
     environment:
-      - COLLECTIONS=LePresidente/gitea crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules
+      - COLLECTIONS=LePresidente/gitea crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/sshd
       - CUSTOM_HOSTNAME=DockerMonster
       - BOUNCER_KEY_traefikBouncer=${CROWDSEC_LAPI_KEY}
       - GID=1000
@@ -803,6 +805,7 @@ services:
       - /data/crowdsec/db:/var/lib/crowdsec/data
       - /data/crowdsec/config:/etc/crowdsec
       - logs-traefik:/var/log/traefik:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - my-net
     labels:
