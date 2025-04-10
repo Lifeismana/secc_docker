@@ -404,12 +404,14 @@ services:
     labels:
       - wud.watch.digest=true
   gitea:
-    #TODO: change this once 1.24 is out (this is nightly 1.24)
-    image: gitea/gitea@sha256:480f78a782521cf34e6d816aed56bb0be2d5b601fba689a026759894db19beac
+    #TODO: change this once 1.24 is out (this is nightly rootless 1.24)
+    image: gitea/gitea@sha256:009d2ff7f9b98bc00e54a1afcac630c66a4b2eb6a2783f514d2b2bd0cdbd3cfa
     container_name: gitea
     restart: unless-stopped
     ports:
-      - 0.0.0.0:22:22
+      - 22:22
+    env_file:
+      - gitea.env
     environment:
       - USER_UID=103
       - USER_GID=113
@@ -419,8 +421,23 @@ services:
       - GITEA__SERVICE__ALLOW_ONLY_EXTERNAL_REGISTRATION=true
       - GITEA__OAUTH2_CLIENT__ENABLE_AUTO_REGISTRATION=true
       - GITEA__OPENID__ENABLE_OPENID_SIGNIN=false
+      - GITEA__SERVER__DOMAIN=git.${MAIN_DOMAIN}
+      - GITEA__SERVER__ROOT_URL=https://git.${MAIN_DOMAIN}/
+      - GITEA__SERVER__LFS_START_SERVER=true
+      - GITEA__DATABASE__DB_TYPE=postgres
+      - GITEA__DATABASE__HOST=postgres:5432
+      - GITEA__DATABASE__NAME=giteadb
+      - GITEA__DATABASE__USER=gitea
+      - GITEA__CACHE__ADAPTER=redis
+      - GITEA__CACHE__HOST=redis://redis:6379/0?pool_size=100&idle_timeout=180s
+      - GITEA__SESSION__PROVIDER=redis
+      - GITEA__SESSION__PROVIDER_CONFIG=redis://redis:6379/0?pool_size=100&idle_timeout=180s
+      - GITEA__SERVER__SSH_PORT=22
+      - GITEA__SERVER__SSH_LISTEN_PORT=22
+      - GITEA__SERVER__OFFLINE_MODE=false
     volumes:
-      - /data_alt/gitea:/data
+      - /data_alt/gitea/data:/var/lib/gitea
+      - /data_alt/gitea/config:/etc/gitea
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     labels: 
