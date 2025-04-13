@@ -368,8 +368,12 @@ services:
       - "traefik.http.routers.whatsupdocker.middlewares=tailscaleAL"
       - wud.watch.digest=true
     depends_on:
-      - authentik-server
-      - traefik
+      traefik:
+        condition: service_started
+        restart: false
+      authentik-server:
+        condition: service_healthy
+        restart: false
   cloudflare-ddns:
     image: timothyjmiller/cloudflare-ddns:latest
     container_name: cloudflare-ddns
@@ -836,8 +840,12 @@ services:
       - "traefik.http.routers.stirling-pdf.middlewares=crowdsec"
       - wud.watch.digest=true
     depends_on:
-      - authentik-server
-      - traefik
+      traefik:
+        condition: service_started
+        restart: false
+      authentik-server:
+        condition: service_healthy
+        restart: false
 
   it-tools:
     container_name: it-tools
