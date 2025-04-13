@@ -849,6 +849,12 @@ services:
     container_name: crowdsec
     image: ghcr.io/crowdsecurity/crowdsec:latest
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "cscli", "lapi status" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     environment:
       - COLLECTIONS=LePresidente/gitea crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/sshd
       - CUSTOM_HOSTNAME=DockerMonster
