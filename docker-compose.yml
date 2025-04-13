@@ -9,6 +9,12 @@ services:
       - NAS_NAME=${MAIN_NAS}
     networks:
       - my-net
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"] 
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     ports:
       - '80:80'
       - '443:443'
@@ -22,7 +28,8 @@ services:
       - logs-traefik:/var/log/traefik
     command: 
       - "--api.dashboard=true"
-      - "--metrics.prometheus=true" 
+      - "--metrics.prometheus=true"
+      - "--ping=true"
       - "--log.level=INFO"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
