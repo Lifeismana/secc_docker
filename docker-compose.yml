@@ -432,6 +432,12 @@ services:
     image: gitea/gitea@sha256:009d2ff7f9b98bc00e54a1afcac630c66a4b2eb6a2783f514d2b2bd0cdbd3cfa
     container_name: gitea
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     ports:
       - 22:22
     env_file:
