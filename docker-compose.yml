@@ -342,6 +342,9 @@ services:
       - "traefik.http.routers.whatsupdocker.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.whatsupdocker.middlewares=tailscaleAL"
       - wud.watch.digest=true
+    depends_on:
+      - authentik-server
+      - traefik
   cloudflare-ddns:
     image: timothyjmiller/cloudflare-ddns:latest
     container_name: cloudflare-ddns
