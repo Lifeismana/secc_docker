@@ -260,7 +260,7 @@ services:
       - "-enable_prometheus"
     ports:
     # TODO: change 222 to 22 when i'll have changed the ssh port on the server
-      - '2222:2222'
+      - '222:222'
     volumes:
       - geoip:/geo-data/:ro
     restart: unless-stopped
