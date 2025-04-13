@@ -591,11 +591,16 @@ services:
       - wud.watch.digest=true
     depends_on:
       - postgres-14
-    network_mode: host
+    networks:
+      - my-net
   red-dashboard:
     container_name: red-dashboard
-    image: ghcr.io/lifeismana/docker-red-dashboard:latest
+    image: ghcr.io/phasecorex/red-dashboard:latest
     restart: unless-stopped
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - /data_alt/red-dashboard:/data
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.reddash.rule=Host(`red-dashboard.${MAIN_DOMAIN}`)"
@@ -604,8 +609,9 @@ services:
       - "traefik.http.services.reddash.loadbalancer.server.port=42356"
       - "traefik.http.routers.reddash.middlewares=crowdsec"
       - wud.watch.digest=true
-    network_mode: host
-    command: ["bash", "-c", "source ~/reddashenv/bin/activate;reddash --host=0.0.0.0"]
+    network_mode: "service:redbot"
+    depends_on:
+      - redbot
 
   grafana:
     container_name: grafana
