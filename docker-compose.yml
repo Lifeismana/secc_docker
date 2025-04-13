@@ -666,6 +666,14 @@ services:
   renderer:
     container_name: grafana-renderer
     image: grafana/grafana-image-renderer:latest
+    environment:
+      - ENABLE_METRICS=true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O - http://localhost:8081 &>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
     depends_on: 
       - grafana
