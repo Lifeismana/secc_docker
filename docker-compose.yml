@@ -228,6 +228,12 @@ services:
     container_name: beszel
     image: ghcr.io/henrygd/beszel/beszel:0.10.2
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/beszel", "health", '--url', 'http://localhost:8090']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     networks:
       - my-net
     extra_hosts:
@@ -246,6 +252,12 @@ services:
     container_name: beszel-agent
     image: ghcr.io/henrygd/beszel/beszel-agent:0.10.2
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/agent", "health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     network_mode: "host"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
