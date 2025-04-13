@@ -483,6 +483,13 @@ services:
     container_name: prometheus
     image: quay.io/prometheus/prometheus
     restart: unless-stopped
+    healthcheck:
+    # not sure why the /healthy endpoint is not working as doc mentions
+      test: ["CMD", "wget", "-O - http://localhost:9090 &>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     user: 1000:1000
     volumes:
       - /data/prometheus:/etc/prometheus
