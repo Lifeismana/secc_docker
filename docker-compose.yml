@@ -727,6 +727,12 @@ services:
     image: couchdb:latest
     container_name: obsidian-livesync
     user: 1000:1000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5984/_up"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     env_file:
       - obsidian-livesync.env
     restart: unless-stopped
