@@ -164,6 +164,9 @@ services:
     image: ghcr.io/jokob-sk/netalertx:latest
     environment:
       - TZ=Europe/Paris
+      # listen only on the network traefik is to not get blocked by firewalld 
+      # (might become a problem if we're "unlucky" and this isn't the subnet that gets assigned)
+      - LISTEN_ADDR=172.17.0.1
     restart: unless-stopped
     volumes:
       - /data/netalertx/db:/app/db
