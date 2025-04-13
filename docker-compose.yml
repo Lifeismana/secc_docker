@@ -329,8 +329,8 @@ services:
     healthcheck:
       test: curl --fail http://localhost:3000/health || exit 1
       interval: 30s
-      timeout: 10s
-      retries: 3
+      timeout: 5s
+      retries: 5
       start_period: 10s
     env_file:
       - whats-up-docker.env
@@ -532,9 +532,9 @@ services:
       - '/data_alt/influxdb:/var/lib/influxdb2'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
-      interval: 5s
-      timeout: 10s
-      retries: 20
+      interval: 30s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.influxdb.rule=Host(`influxdb.internal.${MAIN_DOMAIN}`)"
@@ -565,9 +565,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
-      interval: 5s
-      timeout: 10s
-      retries: 20
+      interval: 30s
+      timeout: 5s
+      retries: 5
       start_period: 10s
     labels:
       - "traefik.enable=true"
