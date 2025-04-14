@@ -298,7 +298,7 @@ services:
       - wud.watch.digest=true
   portainer_agent:
     container_name: portainer_agent
-    image: portainer/agent:2.28.1
+    image: portainer/agent:sts
     restart: unless-stopped
     #ports:
     #  - 9001:9001
@@ -438,6 +438,7 @@ services:
       - my-net
     labels:
       - wud.watch.digest=true
+      - wud.tag.include=^\d+$
   gitea:
     #TODO: change this once 1.24 is out (this is nightly rootless 1.24)
     image: gitea/gitea@sha256:009d2ff7f9b98bc00e54a1afcac630c66a4b2eb6a2783f514d2b2bd0cdbd3cfa
@@ -572,6 +573,7 @@ services:
       - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
       - "traefik.http.routers.influxdb.middlewares=tailscaleAL"
       - wud.watch.digest=true
+      - wud.tag.include=^\d+\.\d+$
     networks:
       - my-net
 
