@@ -379,6 +379,28 @@ services:
       authentik-server:
         condition: service_healthy
         restart: false
+
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ntfy
+    restart: unless-stopped
+    command:
+      - serve
+    environment:
+      - TZ=Europe/Paris
+      - NTFY_BASE_URL=http://ntfy.internal.${MAIN_DOMAIN}
+      - NTFY_CACHE_PATH=/var/cache/ntfy.db
+    user: 1000:1000
+    volumes:
+      - /data/ntfy/cache:/var/cache/ntfy
+      - /data/ntfy/etc:/etc/ntfy
+    healthcheck:
+        test: ["CMD-SHELL", "wget -q --tries=1 http://localhost:80/v1/health -O - | grep -Eo '\"healthy\"\\s*:\\s*true' || exit 1"]
+        interval: 30s
+        timeout: 5s
+        retries: 5
+        start_period: 30s
+
   cloudflare-ddns:
     image: timothyjmiller/cloudflare-ddns:latest
     container_name: cloudflare-ddns
