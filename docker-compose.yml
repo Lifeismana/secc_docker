@@ -345,6 +345,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - whatsupdocker:/store
+      - ./docker-compose.yml:/wud/docker-compose.yml:ro
     healthcheck:
       test: curl --fail http://localhost:3000/health || exit 1
       interval: 30s
@@ -358,6 +359,10 @@ services:
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *
       - WUD_WATCHER_LOCAL_WATCHALL=true
       - WUD_AUTH_OIDC_AUTHENTIK_REDIRECT=true
+      - WUD_TRIGGER_DOCKERCOMPOSE_SECC_FILE=/wud/docker-compose.yml
+      - WUD_TRIGGER_DOCKERCOMPOSE_SECC_PRUNE=true
+      - WUD_TRIGGER_DOCKERCOMPOSE_SECC_THRESHOLD=patch
+      - WUD_TRIGGER_DOCKERCOMPOSE_SECC_AUTO=false
     networks:
       - my-net
     labels:
