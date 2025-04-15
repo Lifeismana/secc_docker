@@ -420,6 +420,7 @@ services:
     volumes:
       - /data_alt/postgres-14:/var/lib/postgresql/data
       - /var/run/postgresql:/var/run/postgresql
+    network_mode: none
     labels:
       - wud.watch=false
   
