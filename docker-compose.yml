@@ -885,6 +885,46 @@ services:
       - "traefik.http.routers.excalidraw.tls.certresolver=cloudflare_main"
       - wud.watch.digest=true
 
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio:latest
+    restart: unless-stopped
+    command: minio server /data --console-address ":9001"
+    user: 1000:1000
+    env_file:
+      - minio.env
+    environment:
+    # not quite clear why minio doesn't like MINIO_DOMAIN with traefik
+      - MINIO_ENABLE_COMPRESSION=on
+      - MINIO_BROWSER_REDIRECT_URL=https://minio.internal.${MAIN_DOMAIN}
+      - MINIO_IDENTITY_OPENID_CONFIG_URL=https://authentik.${MAIN_DOMAIN}/application/o/minio/.well-known/openid-configuration
+      - MINIO_IDENTITY_OPENID_SCOPES=openid,profile,email,minio
+    volumes:
+      - /data/minio:/data
+    networks:
+      - my-net
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio.rule=Host(`minio.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.minio.entrypoints=websecure"
+      - "traefik.http.routers.minio.tls.certresolver=cloudflare_main"
+      - "traefik.http.routers.minio.middlewares=crowdsec"
+      - "traefik.http.routers.minio.service=minio"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+      - "traefik.http.routers.minio-console.rule=Host(`minio.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.minio-console.entrypoints=websecure"
+      - "traefik.http.routers.minio-console.tls.certresolver=cloudflare_main"
+      - "traefik.http.routers.minio-console.middlewares=crowdsec"
+      - "traefik.http.routers.minio-console.service=minio-console"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+      - wud.watch.digest=true
+
   crowdsec:
     container_name: crowdsec
     image: ghcr.io/crowdsecurity/crowdsec:latest
