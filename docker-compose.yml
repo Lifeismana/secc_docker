@@ -362,7 +362,7 @@ services:
       - WUD_TRIGGER_DOCKERCOMPOSE_SECC_FILE=/wud/docker-compose.yml
       - WUD_TRIGGER_DOCKERCOMPOSE_SECC_PRUNE=true
       - WUD_TRIGGER_DOCKERCOMPOSE_SECC_THRESHOLD=patch
-      - WUD_TRIGGER_DOCKERCOMPOSE_SECC_AUTO=false
+      - WUD_TRIGGER_DOCKERCOMPOSE_SECC_AUTO=true
     networks:
       - my-net
     labels:
