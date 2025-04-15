@@ -163,6 +163,7 @@ services:
       - wud.watch.digest=true
     networks:
       - my-net
+      - net-postgres
     
   netalertx:
     container_name: NetAlertX
@@ -441,7 +442,7 @@ services:
     volumes:
       - /data_alt/postgres:/var/lib/postgresql/data
     networks:
-      - my-net
+      - net-postgres
     labels:
       - wud.watch.digest=true
       - wud.tag.include=^\d+$
@@ -500,6 +501,7 @@ services:
       - crowdsec.labels.type=gitea
     networks:
       - my-net
+      - net-postgres
     depends_on:
       - postgres
   redis:
@@ -917,6 +919,7 @@ services:
       - CMD_MINIO_SECURE=true
     networks:
       - my-net
+      - net-postgres
     labels:
       - traefik.enable=true
       - traefik.http.routers.hedgedoc.rule=Host(`hedgedoc.${MAIN_DOMAIN}`)
@@ -942,6 +945,7 @@ services:
       - /data/minio:/data
     networks:
       - my-net
+      - net-postgres
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
       interval: 30s
@@ -1034,6 +1038,7 @@ services:
         condition: service_healthy
     networks:
       - my-net
+      - net-postgres
 
   authentik-worker:
     container_name: authentik-worker
@@ -1056,6 +1061,7 @@ services:
         condition: service_healthy
     networks:
       - my-net
+      - net-postgres
     labels:
       - wud.watch.digest=true
 
@@ -1077,6 +1083,10 @@ networks:
   my-net:
     name: my-net
     driver: bridge
+  net-postgres:
+    name: net-postgres 
+    driver: bridge 
+    internal: true 
 
 volumes:
   geoip:
