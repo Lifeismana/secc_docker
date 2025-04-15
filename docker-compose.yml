@@ -885,6 +885,44 @@ services:
       - "traefik.http.routers.excalidraw.tls.certresolver=cloudflare_main"
       - wud.watch.digest=true
 
+  hedgedoc:
+    container_name: hedgedoc
+    image: quay.io/hedgedoc/hedgedoc:1.10.3
+    restart: unless-stopped
+    env_file:
+      - hedgedoc.env
+    environment:
+      - CMD_DOMAIN=hedgedoc.${MAIN_DOMAIN}
+      - CMD_PROTOCOL_USESSL=true
+      - CMD_URL_ADDPORT=false
+      - CMD_DB_HOST=postgres
+      - CMD_DB_PORT=5432
+      - CMD_DB_USERNAME=hedgedoc
+      - CMD_DB_DATABASE=hedgedocdb
+      - CMD_DB_DIALECT=postgres
+      - CMD_EMAIL=false
+      - CMD_ALLOW_EMAIL_REGISTER=false
+      - CMD_OAUTH2_PROVIDERNAME=authentik
+      - CMD_OAUTH2_SCOPE=openid profile email 
+      - CMD_OAUTH2_USER_PROFILE_URL=https://authentik.${MAIN_DOMAIN}/application/o/userinfo/
+      - CMD_OAUTH2_TOKEN_URL=https://authentik.${MAIN_DOMAIN}/application/o/token/
+      - CMD_OAUTH2_AUTHORIZATION_URL=https://authentik.${MAIN_DOMAIN}/application/o/authorize/
+      - CMD_OAUTH2_USER_PROFILE_USERNAME_ATTR=preferred_username
+      - CMD_OAUTH2_USER_PROFILE_DISPLAY_NAME_ATTR=name
+      - CMD_OAUTH2_USER_PROFILE_EMAIL_ATTR=email
+      - CMD_IMAGE_UPLOAD_TYPE=minio
+      - CMD_S3_BUCKET=hedgedoc
+      - CMD_MINIO_ENDPOINT=minio.${MAIN_DOMAIN}
+      - CMD_MINIO_SECURE=true
+    networks:
+      - my-net
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.hedgedoc.rule=Host(`hedgedoc.${MAIN_DOMAIN}`)
+      - traefik.http.routers.hedgedoc.entrypoints=websecure
+      - traefik.http.routers.hedgedoc.tls.certresolver=cloudflare_main
+      - wud.watch.digest=true
+
   minio:
     container_name: minio
     image: quay.io/minio/minio:latest
