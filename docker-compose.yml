@@ -448,7 +448,7 @@ services:
       - wud.tag.include=^\d+$
   gitea:
     #TODO: change this once 1.24 is out (this is nightly rootless 1.24)
-    image: gitea/gitea@sha256:009d2ff7f9b98bc00e54a1afcac630c66a4b2eb6a2783f514d2b2bd0cdbd3cfa
+    image: gitea/gitea@sha256:e39a5a7eb0b2aca06169b6d7a0fde1d4b00f86eb3dd5d9167232b4752bad7281
     container_name: gitea
     restart: unless-stopped
     healthcheck:
