@@ -586,6 +586,7 @@ services:
       - wud.tag.include=^\d+\.\d+$
     networks:
       - my-net
+      - net-influxdb
 
   scrutiny-web:
     image: ghcr.io/analogj/scrutiny:master-web
@@ -627,6 +628,7 @@ services:
       - wud.watch.digest=true
     networks:
       - my-net
+      - net-influxdb
 
   redbot:
     container_name: redbot
@@ -1093,6 +1095,10 @@ networks:
     internal: true
   net-redis:
     name: net-redis
+    driver: bridge
+    internal: true
+  net-influxdb:
+    name: net-influxdb
     driver: bridge
     internal: true
 
