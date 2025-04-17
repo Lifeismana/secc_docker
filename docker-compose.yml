@@ -8,16 +8,17 @@ services:
       - TZ=Europe/Paris
       - NAS_NAME=${MAIN_NAS}
     networks:
-      - my-net
+      - net-proxy
+      - net-prometheus
     healthcheck:
-      test: ["CMD", "traefik", "healthcheck", "--ping"] 
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 30s
     ports:
-      - '80:80'
-      - '443:443'
+      - "80:80"
+      - "443:443"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -26,7 +27,7 @@ services:
       - /home/cert-syno/cert:/syno:ro,uid=1001,gid=1001
       - ./traefik/traefik_dynamic.yaml:/etc/traefik/traefik_dynamic.yaml
       - logs-traefik:/var/log/traefik
-    command: 
+    command:
       - "--api.dashboard=true"
       - "--metrics.prometheus=true"
       - "--ping=true"
@@ -99,7 +100,7 @@ services:
       - wud.watch.digest=true
     restart: unless-stopped
     networks:
-      - my-net
+      - net-proxy
 
   portainer:
     container_name: portainer
@@ -110,7 +111,7 @@ services:
     volumes:
       - /data/portainer:/data:uid=1000,gid=994
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`portainer.internal.${MAIN_DOMAIN}`)"
@@ -163,9 +164,9 @@ services:
       - homepage.widget.url=https://speedtest-tracker.internal.${MAIN_DOMAIN}
       - wud.watch.digest=true
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
-    
+
   netalertx:
     container_name: NetAlertX
     hostname: NetAlertX
@@ -173,7 +174,7 @@ services:
     image: ghcr.io/jokob-sk/netalertx:latest
     environment:
       - TZ=Europe/Paris
-      # listen only on the network traefik is to not get blocked by firewalld 
+      # listen only on the network traefik is to not get blocked by firewalld
       # (might become a problem if we're "unlucky" and this isn't the subnet that gets assigned)
       - LISTEN_ADDR=172.17.0.1
     restart: unless-stopped
@@ -238,13 +239,13 @@ services:
     image: ghcr.io/henrygd/beszel/beszel:0.10.2
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "/beszel", "health", '--url', 'http://localhost:8090']
+      test: ["CMD", "/beszel", "health", "--url", "http://localhost:8090"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 5s
     networks:
-      - my-net
+      - net-proxy
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -289,13 +290,14 @@ services:
       - "-max_mind_db=/geo-data/GeoLite2-City.mmdb"
       - "-enable_prometheus"
     ports:
-    # TODO: change 222 to 22 when i'll have changed the ssh port on the server
-      - '222:222'
+      # TODO: change 222 to 22 when i'll have changed the ssh port on the server
+      - "222:222"
     volumes:
       - geoip:/geo-data/:ro
     restart: unless-stopped
     networks:
-      - my-net
+      - net-default
+      - net-prometheus
     labels:
       - wud.watch.digest=true
   portainer_agent:
@@ -309,8 +311,7 @@ services:
       - /docker_data/volumes:/var/lib/docker/volumes
     labels:
       - wud.watch.digest=true
-    networks:
-      - my-net
+    network_mode: "service:portainer"
   watchtower:
     container_name: watchtower
     image: containrrr/watchtower
@@ -329,7 +330,7 @@ services:
       - "traefik.http.routers.watchtower.rule=Host(`watchtower.internal.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.watchtower.entrypoints=websecure"
       - "traefik.http.routers.watchtower.tls.certresolver=cloudflare_main"
-      - "traefik.http.routers.watchtower.middlewares=tailscaleAL" 
+      - "traefik.http.routers.watchtower.middlewares=tailscaleAL"
       - homepage.group=Main
       - homepage.name=Watchtower
       - homepage.icon=watchtower.png
@@ -339,7 +340,7 @@ services:
       - homepage.widget.key=${WATCHTOWER_TOKEN}
     restart: unless-stopped
     networks:
-      - my-net
+      - net-proxy
   whatsupdocker:
     image: getwud/wud
     container_name: whatsupdocker
@@ -366,7 +367,7 @@ services:
       - WUD_TRIGGER_DOCKERCOMPOSE_SECC_THRESHOLD=patch
       - WUD_TRIGGER_DOCKERCOMPOSE_SECC_AUTO=true
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whatsupdocker.rule=Host(`whatsupdocker.internal.${MAIN_DOMAIN}`)"
@@ -419,13 +420,14 @@ services:
       interval: 30s
       retries: 5
       timeout: 5s
+
     volumes:
       - /data_alt/postgres-14:/var/lib/postgresql/data
       - /var/run/postgresql:/var/run/postgresql
     network_mode: none
     labels:
       - wud.watch=false
-  
+
   postgres:
     image: postgres:17
     container_name: postgres
@@ -490,7 +492,7 @@ services:
       - /data_alt/gitea/config:/etc/gitea
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    labels: 
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.gitea.rule=Host(`git.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.gitea.entrypoints=websecure"
@@ -501,7 +503,7 @@ services:
       - crowdsec.enable=true
       - crowdsec.labels.type=gitea
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
       - net-redis
     depends_on:
@@ -524,13 +526,13 @@ services:
     labels:
       - wud.watch.digest=true
 
-# TODO: add thanos
+  # TODO: add thanos
   prometheus:
     container_name: prometheus
     image: quay.io/prometheus/prometheus
     restart: unless-stopped
     healthcheck:
-    # not sure why the /healthy endpoint is not working as doc mentions
+      # not sure why the /healthy endpoint is not working as doc mentions
       test: ["CMD-SHELL", "wget -O - http://localhost:9090 &>/dev/null"]
       interval: 30s
       timeout: 5s
@@ -541,12 +543,13 @@ services:
       - /data/prometheus:/etc/prometheus
       - /data_alt/prometheus:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
     networks:
-      - my-net
+      - net-proxy
+      - net-prometheus
     extra_hosts:
       - "host.docker.internal:host-gateway"
     labels:
@@ -569,7 +572,7 @@ services:
     image: influxdb:2.2
     container_name: influxdb
     volumes:
-      - '/data_alt/influxdb:/var/lib/influxdb2'
+      - "/data_alt/influxdb:/var/lib/influxdb2"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
       interval: 30s
@@ -585,13 +588,14 @@ services:
       - wud.watch.digest=true
       - wud.tag.include=^\d+\.\d+$
     networks:
-      - my-net
+      - net-proxy
+      - net-influxdb
 
   scrutiny-web:
     image: ghcr.io/analogj/scrutiny:master-web
     container_name: scrutiny-web
     volumes:
-      - '/data/scrutiny:/opt/scrutiny/config'
+      - "/data/scrutiny:/opt/scrutiny/config"
     environment:
       - SCRUTINY_WEB_INFLUXDB_HOST=influxdb
       # - SCRUTINY_WEB_INFLUXDB_TOKEN=your-very-secret-token
@@ -626,7 +630,8 @@ services:
       - homepage.widget.url=https://scrutiny.internal.${MAIN_DOMAIN}
       - wud.watch.digest=true
     networks:
-      - my-net
+      - net-proxy
+      - net-influxdb
 
   redbot:
     container_name: redbot
@@ -637,7 +642,7 @@ services:
       - /data_alt/.ssh/red_github/:/config/.ssh/
       - /data_alt/.pylav-red/pylav.yaml:/config/pylav.yaml
       - /var/run/postgresql:/var/run/postgresql
-      - /data_alt/.pylav-red/PyLav:/config/.config/PyLav     
+      - /data_alt/.pylav-red/PyLav:/config/.config/PyLav
     environment:
       - CUSTOM_REDBOT_PACKAGE=git+https://github.com/Cog-Creators/Red-DiscordBot.git@V3/develop#egg=Red-DiscordBot
       - TZ=Europe/Paris
@@ -646,7 +651,7 @@ services:
     depends_on:
       - postgres-14
     networks:
-      - my-net
+      - net-proxy
   red-dashboard:
     container_name: red-dashboard
     image: ghcr.io/phasecorex/red-dashboard:latest
@@ -655,7 +660,7 @@ services:
       - TZ=Europe/Paris
     volumes:
       - /data_alt/red-dashboard:/data
-    labels: 
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.reddash.rule=Host(`red-dashboard.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.reddash.entrypoints=websecure"
@@ -703,7 +708,7 @@ services:
       - homepage.widget.password=${GRAFANA_PASSWORD}
       - wud.watch.digest=true
     networks:
-      - my-net     
+      - net-proxy
   renderer:
     container_name: grafana-renderer
     image: grafana/grafana-image-renderer:latest
@@ -716,10 +721,9 @@ services:
       retries: 5
       start_period: 30s
     restart: unless-stopped
-    depends_on: 
+    depends_on:
       - grafana
-    networks:
-      - my-net
+    network_mode: "service:grafana"
     labels:
       - wud.watch.digest=true
 
@@ -740,7 +744,7 @@ services:
       - "traefik.http.routers.asf.middlewares=tailscaleAL"
       - wud.watch.digest=true
     networks:
-      - my-net
+      - net-proxy
 
   steam-watcher:
     container_name: steam-watcher
@@ -751,7 +755,7 @@ services:
     volumes:
       - /data/steam-watcher:/usr/src/app/config/
     networks:
-      - my-net
+      - net-default
     labels:
       - wud.watch.digest=true
 
@@ -764,7 +768,7 @@ services:
   #     - /data/discord-rss/:/app/config/
   #   networks:
   #     - my-net
-      
+
   rss-forwarder:
     image: ghcr.io/morphy2k/rss-forwarder:latest
     container_name: rss-forwarder
@@ -774,7 +778,7 @@ services:
     environment:
       - TZ=Europe/Paris
     networks:
-      - my-net
+      - net-default
     labels:
       - wud.watch.digest=true
 
@@ -795,7 +799,7 @@ services:
       - /data/obsidian-livesync/data:/opt/couchdb/data
       - /data/obsidian-livesync/local.ini:/opt/couchdb/etc/local.ini
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.obsidian-livesync.rule=Host(`obsidian-livesync.internal.${MAIN_DOMAIN}`)"
@@ -817,12 +821,15 @@ services:
     restart: unless-stopped
     healthcheck:
       #test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/info/status | grep -q 'UP' && curl -fL http://localhost:8080/ | grep -qv 'Login via Single Sign-on'"]
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/info/status | grep -q 'UP'"]
-      interval: 30s 
-      timeout: 5s 
-      retries: 5 
-      start_period: 30s 
-      
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:8080/api/v1/info/status | grep -q 'UP'",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     env_file:
       - env/stirling-pdf.env
     volumes:
@@ -842,7 +849,7 @@ services:
       - SECURITY_OAUTH2_PROVIDER=authentik
       - SECURITY_LOGINMETHOD=oauth2
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.stirling-pdf.rule=Host(`stirling-pdf.${MAIN_DOMAIN}`)"
@@ -869,7 +876,7 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.it-tools.rule=Host(`it-tools.internal.${MAIN_DOMAIN}`)"
@@ -882,7 +889,7 @@ services:
     image: excalidraw/excalidraw:latest
     restart: unless-stopped
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.excalidraw.rule=Host(`excalidraw.internal.${MAIN_DOMAIN}`)"
@@ -908,7 +915,7 @@ services:
       - CMD_EMAIL=false
       - CMD_ALLOW_EMAIL_REGISTER=false
       - CMD_OAUTH2_PROVIDERNAME=authentik
-      - CMD_OAUTH2_SCOPE=openid profile email 
+      - CMD_OAUTH2_SCOPE=openid profile email
       - CMD_OAUTH2_USER_PROFILE_URL=https://authentik.${MAIN_DOMAIN}/application/o/userinfo/
       - CMD_OAUTH2_TOKEN_URL=https://authentik.${MAIN_DOMAIN}/application/o/token/
       - CMD_OAUTH2_AUTHORIZATION_URL=https://authentik.${MAIN_DOMAIN}/application/o/authorize/
@@ -920,7 +927,7 @@ services:
       - CMD_MINIO_ENDPOINT=minio.${MAIN_DOMAIN}
       - CMD_MINIO_SECURE=true
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
     labels:
       - traefik.enable=true
@@ -938,7 +945,7 @@ services:
     env_file:
       - env/minio.env
     environment:
-    # not quite clear why minio doesn't like MINIO_DOMAIN with traefik
+      # not quite clear why minio doesn't like MINIO_DOMAIN with traefik
       - MINIO_ENABLE_COMPRESSION=on
       - MINIO_BROWSER_REDIRECT_URL=https://minio.internal.${MAIN_DOMAIN}
       - MINIO_IDENTITY_OPENID_CONFIG_URL=https://authentik.${MAIN_DOMAIN}/application/o/minio/.well-known/openid-configuration
@@ -946,8 +953,7 @@ services:
     volumes:
       - /data/minio:/data
     networks:
-      - my-net
-      - net-postgres
+      - net-proxy
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
       interval: 30s
@@ -975,7 +981,7 @@ services:
     image: ghcr.io/crowdsecurity/crowdsec:latest
     restart: always
     healthcheck:
-      test: [ "CMD-SHELL", "cscli", "lapi status" ]
+      test: ["CMD-SHELL", "cscli", "lapi status"]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -992,7 +998,7 @@ services:
       - logs-traefik:/var/log/traefik:ro
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - my-net
+      - net-proxy
     labels:
       - wud.watch.digest=true
 
@@ -1039,7 +1045,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
       - net-redis
 
@@ -1063,7 +1069,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - my-net
+      - net-default
       - net-postgres
       - net-redis
     labels:
@@ -1074,18 +1080,18 @@ services:
     restart: unless-stopped
     image: ghcr.io/maxmind/geoipupdate:latest
     volumes:
-        - "geoip:/usr/share/GeoIP"
+      - "geoip:/usr/share/GeoIP"
     env_file:
         - env/geoipupdate.env
     environment:
-        GEOIPUPDATE_EDITION_IDS: "GeoLite2-City GeoLite2-ASN GeoLite2-Country"
-        GEOIPUPDATE_FREQUENCY: "8"
+      GEOIPUPDATE_EDITION_IDS: "GeoLite2-City GeoLite2-ASN GeoLite2-Country"
+      GEOIPUPDATE_FREQUENCY: "8"
     labels:
-        - wud.watch.digest=true
+      - wud.watch.digest=true
 
 networks:
-  my-net:
-    name: my-net
+  net-proxy:
+    name: net-proxy
     driver: bridge
   net-postgres:
     name: net-postgres 
@@ -1095,6 +1101,17 @@ networks:
     name: net-redis
     driver: bridge
     internal: true
+  net-influxdb:
+    name: net-influxdb
+    driver: bridge
+    internal: true
+  net-prometheus:
+    name: net-prometheus
+    driver: bridge
+    internal: true
+  net-default:
+    name: net-default
+    driver: bridge
 
 volumes:
   geoip:
