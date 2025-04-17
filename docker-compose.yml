@@ -502,6 +502,7 @@ services:
     networks:
       - my-net
       - net-postgres
+      - net-redis
     depends_on:
       - postgres
   redis:
@@ -518,7 +519,7 @@ services:
     volumes:
       - /data_alt/redis:/data
     networks:
-      - my-net
+      - net-redis
     labels:
       - wud.watch.digest=true
 
@@ -1039,6 +1040,7 @@ services:
     networks:
       - my-net
       - net-postgres
+      - net-redis
 
   authentik-worker:
     container_name: authentik-worker
@@ -1062,6 +1064,7 @@ services:
     networks:
       - my-net
       - net-postgres
+      - net-redis
     labels:
       - wud.watch.digest=true
 
@@ -1086,7 +1089,11 @@ networks:
   net-postgres:
     name: net-postgres 
     driver: bridge 
-    internal: true 
+    internal: true
+  net-redis:
+    name: net-redis
+    driver: bridge
+    internal: true
 
 volumes:
   geoip:
