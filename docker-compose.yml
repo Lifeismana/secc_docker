@@ -3,7 +3,7 @@ services:
     image: traefik:v3.3
     container_name: traefik
     env_file:
-      - traefik.env
+      - env/traefik.env
     environment:
       - TZ=Europe/Paris
       - NAS_NAME=${MAIN_NAS}
@@ -135,7 +135,7 @@ services:
     volumes:
       - /data/speedtest-tracker:/config
     env_file:
-      - speedtest-tracker.env
+      - env/speedtest-tracker.env
     environment:
       - TZ=Europe/Paris
       - DISPLAY_TIMEZONE=Europe/Paris
@@ -276,7 +276,7 @@ services:
     environment:
       - LISTEN=45876
     env_file:
-      - beszel-agent.env
+      - env/beszel-agent.env
 
   endlessh:
     container_name: endlessh
@@ -354,7 +354,7 @@ services:
       retries: 5
       start_period: 10s
     env_file:
-      - whats-up-docker.env
+      - env/whats-up-docker.env
     environment:
       - TZ=Europe/Paris
       - WUD_WATCHER_LOCAL_CRON=0 5 * * *
@@ -398,7 +398,7 @@ services:
     image: ghcr.io/lifeismana/tailscale-cloudflare-dnssync:main
     container_name: tailscale-cloudflare-dnssync
     env_file:
-      - tailscale-cloudflare-dnssync.env
+      - env/tailscale-cloudflare-dnssync.env
     environment:
       - PUID=1000
       - PGID=994
@@ -411,7 +411,7 @@ services:
     container_name: postgres-14
     restart: unless-stopped
     env_file:
-      - postgres-14.env
+      - env/postgres-14.env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       start_period: 20s
@@ -430,7 +430,7 @@ services:
     container_name: postgres
     restart: unless-stopped
     env_file:
-      - postgres.env
+      - env/postgres.env
     # ports:
     #   - 127.0.0.1:5432:5432
     healthcheck:
@@ -460,7 +460,7 @@ services:
     ports:
       - 22:22
     env_file:
-      - gitea.env
+      - env/gitea.env
     environment:
       - USER_UID=103
       - USER_GID=113
@@ -598,7 +598,7 @@ services:
       #TODO: add a notification system (maybe ?)
       #- SCRUTINY_NOTIFY_URLS=["http://gotify:80/message?token=a-gotify-token"]
     env_file:
-      - scrutiny.env
+      - env/scrutiny.env
     depends_on:
       influxdb:
         condition: service_healthy
@@ -787,7 +787,7 @@ services:
       retries: 5
       start_period: 30s
     env_file:
-      - obsidian-livesync.env
+      - env/obsidian-livesync.env
     restart: unless-stopped
     volumes:
       - /data/obsidian-livesync/data:/opt/couchdb/data
@@ -822,7 +822,7 @@ services:
       start_period: 30s 
       
     env_file:
-      - stirling-pdf.env
+      - env/stirling-pdf.env
     volumes:
       - /data/stirling-pdf/training-data:/usr/share/tessdata
       - /data/stirling-pdf/extra-configs:/configs
@@ -893,7 +893,7 @@ services:
     image: quay.io/hedgedoc/hedgedoc:1.10.3
     restart: unless-stopped
     env_file:
-      - hedgedoc.env
+      - env/hedgedoc.env
     environment:
       - CMD_DOMAIN=hedgedoc.${MAIN_DOMAIN}
       - CMD_PROTOCOL_USESSL=true
@@ -934,7 +934,7 @@ services:
     command: minio server /data --console-address ":9001"
     user: 1000:1000
     env_file:
-      - minio.env
+      - env/minio.env
     environment:
     # not quite clear why minio doesn't like MINIO_DOMAIN with traefik
       - MINIO_ENABLE_COMPRESSION=on
@@ -1006,7 +1006,7 @@ services:
       AUTHENTIK_POSTGRESQL__NAME: authentikdb
       AUTHENTIK_COOKIE_DOMAIN: ${MAIN_DOMAIN}
     env_file:
-      - authentik.env
+      - env/authentik.env
     volumes:
       - geoip:/geoip
     labels:
@@ -1051,7 +1051,7 @@ services:
       AUTHENTIK_POSTGRESQL__USER: authentik
       AUTHENTIK_POSTGRESQL__NAME: authentikdb
     env_file:
-      - authentik.env
+      - env/authentik.env
     volumes:
       - geoip:/geoip
     depends_on:
@@ -1072,7 +1072,7 @@ services:
     volumes:
         - "geoip:/usr/share/GeoIP"
     env_file:
-        - geoipupdate.env
+        - env/geoipupdate.env
     environment:
         GEOIPUPDATE_EDITION_IDS: "GeoLite2-City GeoLite2-ASN GeoLite2-Country"
         GEOIPUPDATE_FREQUENCY: "8"
