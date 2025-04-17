@@ -9,6 +9,7 @@ services:
       - NAS_NAME=${MAIN_NAS}
     networks:
       - my-net
+      - net-prometheus
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"] 
       interval: 30s
@@ -296,6 +297,7 @@ services:
     restart: unless-stopped
     networks:
       - my-net
+      - net-prometheus
     labels:
       - wud.watch.digest=true
   portainer_agent:
@@ -547,6 +549,7 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
     networks:
       - my-net
+      - net-prometheus
     extra_hosts:
       - "host.docker.internal:host-gateway"
     labels:
@@ -1098,6 +1101,10 @@ networks:
     internal: true
   net-influxdb:
     name: net-influxdb
+    driver: bridge
+    internal: true
+  net-prometheus:
+    name: net-prometheus
     driver: bridge
     internal: true
 
