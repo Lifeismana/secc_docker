@@ -83,6 +83,17 @@ services:
       - wud.watch.digest=true
     restart: unless-stopped
 
+  logrotate:
+    container_name: traefik-logrotate
+    image: vegardit/traefik-logrotate:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw # required to send USR1 signal to Traefik after log rotation
+      - logs-traefik:/var/log/traefik:rw
+    network_mode: none
+    environment:
+      TZ: "Europe/Paris"
+      CRON_SCHEDULE: "0 * * * *"
+
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
