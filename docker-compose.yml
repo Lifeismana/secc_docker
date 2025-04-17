@@ -683,7 +683,7 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ORG_NAME=Lifesismana
       - GF_RENDERING_SERVER_URL=http://renderer:8081/render
-      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      - GF_RENDERING_CALLBACK_URL=http://localhost:3000/
       - GF_INSTALL_PLUGINS=marcusolsson-calendar-panel
     user: 1000:1000
     volumes:
@@ -705,7 +705,7 @@ services:
       - homepage.widget.password=${GRAFANA_PASSWORD}
       - wud.watch.digest=true
     networks:
-      - my-net     
+      - my-net
   renderer:
     container_name: grafana-renderer
     image: grafana/grafana-image-renderer:latest
@@ -720,8 +720,7 @@ services:
     restart: unless-stopped
     depends_on: 
       - grafana
-    networks:
-      - my-net
+    network_mode: "service:grafana"
     labels:
       - wud.watch.digest=true
 
