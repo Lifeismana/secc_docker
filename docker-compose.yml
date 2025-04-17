@@ -32,6 +32,7 @@ services:
       - "--ping=true"
       - "--log.level=INFO"
       - "--providers.docker=true"
+      - "--providers.docker.network=my-net"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.file.filename=/etc/traefik/traefik_dynamic.yaml"
       - "--accesslog"
