@@ -10,6 +10,7 @@ services:
     networks:
       - my-net
       - net-prometheus
+      - net-redis
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"] 
       interval: 30s
@@ -73,6 +74,8 @@ services:
       - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecAppsecEnabled=true"
       - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecLapiKey=${CROWDSEC_LAPI_KEY}"
       - "traefik.http.middlewares.crowdsec.plugin.crowdsec.crowdsecappsechost=crowdsec:7422"
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.rediscacheenabled=true"
+      - "traefik.http.middlewares.crowdsec.plugin.crowdsec.rediscachehost=redis:6379"
       - homepage.group=Main
       - homepage.name=Traefik
       - homepage.icon=traefik.png
