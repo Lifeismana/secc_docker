@@ -952,6 +952,25 @@ services:
       - "traefik.http.routers.it-tools.tls.certresolver=cloudflare_main"
       - wud.watch.digest=true
 
+  mazanoke:
+    container_name: mazanoke
+    image: ghcr.io/civilblur/mazanoke:latest
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O - http://localhost:80 &>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - my-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mazanoke.rule=Host(`mazanoke.internal.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.mazanoke.entrypoints=websecure"
+      - "traefik.http.routers.mazanoke.tls.certresolver=cloudflare_main"
+      - wud.watch.digest=true
+
   excalidraw:
     container_name: excalidraw
     image: excalidraw/excalidraw:latest
