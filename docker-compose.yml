@@ -1077,7 +1077,7 @@ services:
     environment:
       - COLLECTIONS=LePresidente/gitea crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/sshd
       - CUSTOM_HOSTNAME=DockerMonster
-      - BOUNCER_KEY_traefikBouncer=${CROWDSEC_LAPI_KEY}
+      - BOUNCER_KEY_TraefikBouncer=${CROWDSEC_LAPI_KEY}
       - GID=1000
     volumes:
       - /data/crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml
@@ -1087,6 +1087,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - my-net
+    ports:
+      # needed for the firewall bouncer
+      - 127.0.0.1:8080:8080
     labels:
       - wud.watch.digest=true
 
