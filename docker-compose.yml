@@ -584,6 +584,7 @@ services:
     volumes:
       - /data/prometheus:/etc/prometheus
       - /data_alt/prometheus:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
