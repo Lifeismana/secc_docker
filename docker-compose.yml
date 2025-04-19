@@ -582,9 +582,8 @@ services:
       start_period: 30s
     user: 1000:1000
     volumes:
-      - /data/prometheus:/etc/prometheus
       - /data_alt/prometheus:/prometheus
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/:/etc/prometheus/
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
