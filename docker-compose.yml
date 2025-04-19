@@ -529,6 +529,7 @@ services:
       - GITEA__SERVER__SSH_PORT=22
       - GITEA__SERVER__SSH_LISTEN_PORT=22
       - GITEA__SERVER__OFFLINE_MODE=false
+      - GITEA__METRICS__ENABLE=true
     volumes:
       - /data_alt/gitea/data:/var/lib/gitea
       - /data_alt/gitea/config:/etc/gitea
@@ -594,6 +595,8 @@ services:
       - net-prometheus
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    env_file:
+      - env/prometheus.env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.internal.${MAIN_DOMAIN}`)"
