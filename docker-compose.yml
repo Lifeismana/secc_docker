@@ -1140,6 +1140,7 @@ services:
       - my-net
       - net-postgres
       - net-redis
+      - net-prometheus
 
   authentik-worker:
     container_name: authentik-worker
