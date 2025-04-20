@@ -1042,6 +1042,7 @@ services:
     networks:
       - my-net
       - net-postgres
+      - net-prometheus
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
       interval: 30s
