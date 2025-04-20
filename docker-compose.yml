@@ -1087,6 +1087,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - my-net
+      - net-prometheus
     ports:
       # needed for the firewall bouncer
       - 127.0.0.1:8080:8080
