@@ -35,3 +35,7 @@ scrape_configs:
     scheme: http
     static_configs:
     - targets: ['minio:9000']
+
+  - job_name: "redis-exporter"
+    static_configs:
+      - targets: ["redis-exporter:9121"]
