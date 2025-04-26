@@ -837,6 +837,28 @@ services:
     labels:
       - wud.watch.digest=true
 
+  zipline:
+    image: ghcr.io/diced/zipline
+    container_name: zipline
+    restart: unless-stopped
+    env_file:
+      - env/zipline.env
+    environment:
+      - DATASOURCE_TYPE=s3
+      - DATASOURCE_S3_BUCKET=zipline
+      - DATASOURCE_S3_ENDPOINT=https://minio.${MAIN_DOMAIN}
+      - DATASOURCE_S3_FORCE_PATH_STYLE=true
+      - DATASOURCE_S3_REGION=eu-west-1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zipline.rule=Host(`${SECONDARY_DOMAIN}`)"
+      - "traefik.http.routers.zipline.entrypoints=websecure"
+      - "traefik.http.routers.zipline.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.zipline.loadbalancer.server.port=3000"
+    networks:
+      - net-postgres
+      - my-net
+
   grist:
     image: gristlabs/grist:latest
     container_name: grist
