@@ -50,6 +50,8 @@ services:
       - "--entrypoints.websecure.http.tls.domains[0].main=${MAIN_DOMAIN}"
       - "--entrypoints.websecure.http.tls.domains[0].sans=*.${MAIN_DOMAIN}"
       - "--entrypoints.websecure.http.tls.domains[1].main=*.internal.${MAIN_DOMAIN}"
+      - "--entrypoints.websecure.http.tls.domains[2].main=${SECONDARY_DOMAIN}"
+      - "--entrypoints.websecure.http.tls.domains[2].sans=*.${SECONDARY_DOMAIN}"
       - "--certificatesResolvers.cloudflare_main.acme.email=${CLOUDFLARE_EMAIL}"
       - "--certificatesResolvers.cloudflare_main.acme.storage=/data/acme/acme.json"
       - "--certificatesResolvers.cloudflare_main.acme.dnsChallenge.provider=cloudflare"
