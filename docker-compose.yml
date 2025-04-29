@@ -8,9 +8,10 @@ services:
       - TZ=Europe/Paris
       - NAS_NAME=${MAIN_NAS}
     networks:
-      - my-net
-      - net-prometheus
-      - net-redis
+      my-net:
+        ipv4_address: 172.25.0.254
+      net-prometheus:
+      net-redis:
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"] 
       interval: 30s
@@ -20,6 +21,9 @@ services:
     ports:
       - '80:80'
       - '443:443'
+      - '25:25'
+      - '465:465'
+      - '993:993'
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -28,6 +32,7 @@ services:
       - /home/cert-syno/cert:/syno:ro,uid=1001,gid=1001
       - ./traefik/traefik_dynamic.yaml:/etc/traefik/traefik_dynamic.yaml
       - logs-traefik:/var/log/traefik
+      - acme:/etc/certs
     command: 
       - "--api.dashboard=true"
       - "--metrics.prometheus=true"
@@ -52,6 +57,12 @@ services:
       - "--entrypoints.websecure.http.tls.domains[1].main=*.internal.${MAIN_DOMAIN}"
       - "--entrypoints.websecure.http.tls.domains[2].main=${SECONDARY_DOMAIN}"
       - "--entrypoints.websecure.http.tls.domains[2].sans=*.${SECONDARY_DOMAIN}"
+      - "--entrypoints.smtp.address=:25"
+      - "--entrypoints.smtp.proxyProtocol.trustedIPs=172.25.0.254,172.25.0.100"
+      - "--entrypoints.smtps.address=:465"
+      - "--entrypoints.smtps.proxyProtocol.trustedIPs=172.25.0.254,172.25.0.100"
+      - "--entrypoints.imaps.address=:993"
+      - "--entrypoints.imaps.proxyProtocol.trustedIPs=172.25.0.254,172.25.0.100"
       - "--certificatesResolvers.cloudflare_main.acme.email=${CLOUDFLARE_EMAIL}"
       - "--certificatesResolvers.cloudflare_main.acme.storage=/data/acme/acme.json"
       - "--certificatesResolvers.cloudflare_main.acme.dnsChallenge.provider=cloudflare"
@@ -96,6 +107,22 @@ services:
       - wud.watch.digest=true
     restart: unless-stopped
 
+  traefik-certs-dumper:
+    image: ghcr.io/kereis/traefik-certs-dumper:latest
+    container_name: traefik-certs-dumper
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - acme:/traefik:ro
+      - certs:/output
+    network_mode: none
+    healthcheck:
+      test: ["CMD", "/usr/bin/healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
   logrotate:
     container_name: traefik-logrotate
     image: vegardit/traefik-logrotate:latest
@@ -506,6 +533,44 @@ services:
     labels:
       - wud.watch.digest=true
       - wud.tag.include=^\d+$
+
+  mailserver:
+    image: docker.io/stalwartlabs/mail-server:latest
+    container_name: mailserver
+    restart: unless-stopped
+    networks:
+      my-net:
+        ipv4_address: 172.25.0.100
+      net-postgres:
+      net-redis:
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /data/stalwart-mail:/opt/stalwart-mail
+      - certs:/data/certs:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailserver.rule=Host(`mail.${SECONDARY_DOMAIN}`) || Host(`autodiscover.${SECONDARY_DOMAIN}`) || Host(`autoconfig.${SECONDARY_DOMAIN}`) || Host(`mta-sts.${SECONDARY_DOMAIN}`)"
+      - "traefik.http.routers.mailserver.entrypoints=websecure"
+      - "traefik.http.routers.mailserver.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.mailserver.loadbalancer.server.port=8080"
+      - traefik.tcp.routers.smtp.rule=HostSNI(`*`)
+      - traefik.tcp.routers.smtp.entrypoints=smtp
+      - traefik.tcp.routers.smtp.service=smtp
+      - traefik.tcp.services.smtp.loadbalancer.server.port=25
+      - traefik.tcp.services.smtp.loadbalancer.proxyProtocol.version=2
+      - traefik.tcp.routers.smtps.rule=HostSNI(`*`)
+      - traefik.tcp.routers.smtps.tls.passthrough=true
+      - traefik.tcp.routers.smtps.entrypoints=smtps
+      - traefik.tcp.routers.smtps.service=smtps
+      - traefik.tcp.services.smtps.loadbalancer.server.port=465
+      - traefik.tcp.services.smtps.loadbalancer.proxyProtocol.version=2
+      - traefik.tcp.routers.imaps.rule=HostSNI(`*`)
+      - traefik.tcp.routers.imaps.tls.passthrough=true
+      - traefik.tcp.routers.imaps.entrypoints=imaps
+      - traefik.tcp.routers.imaps.service=imaps
+      - traefik.tcp.services.imaps.loadbalancer.server.port=993
+      - traefik.tcp.services.imaps.loadbalancer.proxyProtocol.version=2
+      - wud.watch.digest=true
 
   gitea:
     #TODO: change this once 1.24 is out (this is nightly rootless 1.24)
@@ -1240,6 +1305,9 @@ networks:
   my-net:
     name: my-net
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
   net-postgres:
     name: net-postgres 
     driver: bridge 
@@ -1262,3 +1330,5 @@ volumes:
     driver: local
   whatsupdocker:
   logs-traefik:
+  acme:
+  certs:
