@@ -8,9 +8,10 @@ services:
       - TZ=Europe/Paris
       - NAS_NAME=${MAIN_NAS}
     networks:
-      - my-net
-      - net-prometheus
-      - net-redis
+      my-net:
+        ipv4_address: 172.25.0.254
+      net-prometheus:
+      net-redis:
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"] 
       interval: 30s
@@ -1240,6 +1241,9 @@ networks:
   my-net:
     name: my-net
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
   net-postgres:
     name: net-postgres 
     driver: bridge 
