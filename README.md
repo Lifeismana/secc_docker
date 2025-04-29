@@ -95,3 +95,5 @@ Penser à ajouter un mountpoint pour /data et /data_alt
 ## Pour gitea il faut ajouter l'utilisateur git
 
 `adduser --system --shell /bin/bash --gecos 'Git Version Control' --group --disabled-password --home /home/git git`
+
+Exim4 est remplacé par dma pour le serveur mail
