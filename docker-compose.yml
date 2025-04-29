@@ -107,6 +107,36 @@ services:
       TZ: "Europe/Paris"
       CRON_SCHEDULE: "0 * * * *"
 
+  mantrae:
+    image: ghcr.io/mizuchilabs/mantrae:latest
+    container_name: mantrae
+    environment:
+      - TRAEFIK_URL=https://traefik.internal.${MAIN_DOMAIN}
+    env_file:
+      - env/mantrae.env
+    volumes:
+      - /data/mantrae:/data 
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.mantrae.rule=Host(`mantrae.internal.${MAIN_DOMAIN}`)
+      - traefik.http.routers.mantrae.entrypoints=websecure
+      - traefik.http.routers.mantrae.tls.certresolver=cloudflare_main
+      - traefik.http.services.mantrae.loadbalancer.server.port=3000
+    networks:
+      - my-net
+    restart: unless-stopped
+
+  mantrae-agent:
+    image: ghcr.io/mizuchilabs/mantrae-agent:latest
+    container_name: mantrae-agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # needed if running as container
+    env_file:
+      - env/mantrae-agent.env
+    networks:
+      - my-net # added network for monitoring
+    restart: unless-stopped
+
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
