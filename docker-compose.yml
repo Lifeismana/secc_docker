@@ -8,7 +8,7 @@ services:
       - TZ=Europe/Paris
       - NAS_NAME=${MAIN_NAS}
     networks:
-      my-net:
+      net-proxy:
         ipv4_address: 172.25.0.254
       net-prometheus:
       net-redis:
@@ -35,7 +35,7 @@ services:
       - "--ping=true"
       - "--log.level=INFO"
       - "--providers.docker=true"
-      - "--providers.docker.network=my-net"
+      - "--providers.docker.network=net-proxy"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.file.filename=/etc/traefik/traefik_dynamic.yaml"
       - "--accesslog"
@@ -125,7 +125,7 @@ services:
       - wud.watch.digest=true
     restart: unless-stopped
     networks:
-      - my-net
+      - net-proxy
 
   portainer:
     container_name: portainer
@@ -136,7 +136,7 @@ services:
     volumes:
       - /data/portainer:/data:uid=1000,gid=994
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`portainer.internal.${MAIN_DOMAIN}`)"
@@ -189,7 +189,7 @@ services:
       - homepage.widget.url=https://speedtest-tracker.internal.${MAIN_DOMAIN}
       - wud.watch.digest=true
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
 
   netalertx:
@@ -270,7 +270,7 @@ services:
       retries: 5
       start_period: 5s
     networks:
-      - my-net
+      - net-proxy
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -318,7 +318,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - my-net
+      - net-proxy
     environment:
       - TZ=Europe/Paris
       - DOZZLE_AUTH_PROVIDER=forward-proxy
@@ -349,7 +349,7 @@ services:
       - geoip:/geo-data/:ro
     restart: unless-stopped
     networks:
-      - my-net
+      - net-proxy
       - net-prometheus
     labels:
       - wud.watch.digest=true
@@ -366,7 +366,7 @@ services:
     labels:
       - wud.watch.digest=true
     networks:
-      - my-net
+      - net-proxy
 
   watchtower:
     container_name: watchtower
@@ -396,7 +396,7 @@ services:
       - homepage.widget.key=${WATCHTOWER_TOKEN}
     restart: unless-stopped
     networks:
-      - my-net
+      - net-proxy
 
   whatsupdocker:
     image: getwud/wud
@@ -424,7 +424,7 @@ services:
       # - WUD_TRIGGER_DOCKERCOMPOSE_SECC_THRESHOLD=patch
       # - WUD_TRIGGER_DOCKERCOMPOSE_SECC_AUTO=true
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whatsupdocker.rule=Host(`whatsupdocker.internal.${MAIN_DOMAIN}`)"
@@ -562,7 +562,7 @@ services:
       - crowdsec.enable=true
       - crowdsec.labels.type=gitea
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
       - net-redis
     depends_on:
@@ -620,7 +620,7 @@ services:
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
     networks:
-      - my-net
+      - net-proxy
       - net-prometheus
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -660,7 +660,7 @@ services:
       - wud.watch.digest=true
       - wud.tag.include=^\d+\.\d+$
     networks:
-      - my-net
+      - net-proxy
       - net-influxdb
 
   scrutiny-web:
@@ -702,7 +702,7 @@ services:
       - homepage.widget.url=https://scrutiny.internal.${MAIN_DOMAIN}
       - wud.watch.digest=true
     networks:
-      - my-net
+      - net-proxy
       - net-influxdb
 
   redbot:
@@ -723,7 +723,7 @@ services:
     depends_on:
       - postgres-14
     networks:
-      - my-net
+      - net-proxy
 
   red-dashboard:
     container_name: red-dashboard
@@ -781,7 +781,7 @@ services:
       - homepage.widget.password=${GRAFANA_PASSWORD}
       - wud.watch.digest=true
     networks:
-      - my-net
+      - net-proxy
 
   renderer:
     container_name: grafana-renderer
@@ -818,7 +818,7 @@ services:
       - "traefik.http.routers.asf.middlewares=tailscaleAL"
       - wud.watch.digest=true
     networks:
-      - my-net
+      - net-proxy
 
   steam-watcher:
     container_name: steam-watcher
@@ -829,7 +829,7 @@ services:
     volumes:
       - /data/steam-watcher:/usr/src/app/config/
     networks:
-      - my-net
+      - net-proxy
     labels:
       - wud.watch.digest=true
 
@@ -841,7 +841,7 @@ services:
   #   volumes:
   #     - /data/discord-rss/:/app/config/
   #   networks:
-  #     - my-net
+  #     - net-proxy
 
   rss-forwarder:
     image: ghcr.io/morphy2k/rss-forwarder:latest
@@ -852,7 +852,7 @@ services:
     environment:
       - TZ=Europe/Paris
     networks:
-      - my-net
+      - net-proxy
     labels:
       - wud.watch.digest=true
 
@@ -876,7 +876,7 @@ services:
       - "traefik.http.services.zipline.loadbalancer.server.port=3000"
     networks:
       - net-postgres
-      - my-net
+      - net-proxy
 
   grist:
     image: gristlabs/grist:latest
@@ -903,7 +903,7 @@ services:
       - "traefik.http.routers.grist.entrypoints=websecure"
       - "traefik.http.routers.grist.tls.certresolver=cloudflare_main"
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
       - net-redis
 
@@ -924,7 +924,7 @@ services:
       - /data/obsidian-livesync/data:/opt/couchdb/data
       - /data/obsidian-livesync/local.ini:/opt/couchdb/etc/local.ini
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.obsidian-livesync.rule=Host(`obsidian-livesync.internal.${MAIN_DOMAIN}`)"
@@ -971,7 +971,7 @@ services:
       - SECURITY_OAUTH2_PROVIDER=authentik
       - SECURITY_LOGINMETHOD=oauth2
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.stirling-pdf.rule=Host(`stirling-pdf.${MAIN_DOMAIN}`)"
@@ -998,7 +998,7 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.it-tools.rule=Host(`it-tools.internal.${MAIN_DOMAIN}`)"
@@ -1017,7 +1017,7 @@ services:
       retries: 5
       start_period: 30s
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mazanoke.rule=Host(`mazanoke.internal.${MAIN_DOMAIN}`)"
@@ -1030,7 +1030,7 @@ services:
     image: excalidraw/excalidraw:latest
     restart: unless-stopped
     networks:
-      - my-net
+      - net-proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.excalidraw.rule=Host(`excalidraw.internal.${MAIN_DOMAIN}`)"
@@ -1068,7 +1068,7 @@ services:
       - CMD_MINIO_ENDPOINT=minio.${MAIN_DOMAIN}
       - CMD_MINIO_SECURE=true
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
     labels:
       - traefik.enable=true
@@ -1094,7 +1094,7 @@ services:
     volumes:
       - /data/minio:/data
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
       - net-prometheus
     healthcheck:
@@ -1141,7 +1141,7 @@ services:
       - logs-traefik:/var/log/traefik:ro
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - my-net
+      - net-proxy
       - net-prometheus
     ports:
       # needed for the firewall bouncer
@@ -1192,7 +1192,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
       - net-redis
       - net-prometheus
@@ -1217,7 +1217,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - my-net
+      - net-proxy
       - net-postgres
       - net-redis
     labels:
@@ -1238,8 +1238,8 @@ services:
         - wud.watch.digest=true
 
 networks:
-  my-net:
-    name: my-net
+  net-proxy:
+    name: net-proxy
     driver: bridge
     ipam:
       config:
