@@ -370,13 +370,13 @@ services:
 
   watchtower:
     container_name: watchtower
-    image: containrrr/watchtower
+    image: ghcr.io/nicholas-fedor/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       TZ: Europe/Paris
       WATCHTOWER_CLEANUP: true
-      DOCKER_API_VERSION: 1.45
+      DOCKER_API_VERSION: 1.49
       WATCHTOWER_SCHEDULE: 0 0 5 * * *
       WATCHTOWER_TIMEOUT: 5m
       WATCHTOWER_HTTP_API_METRICS: true
