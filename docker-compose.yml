@@ -407,7 +407,7 @@ services:
       - whatsupdocker:/store
       - ./docker-compose.yml:/wud/docker-compose.yml:ro
     healthcheck:
-      test: curl --fail http://localhost:3000/health || exit 1
+      test: curl --fail http://localhost:3000/health || exit 1 && curl http://localhost:3000/auth/strategies | jq -e '. | length > 0' || exit 1
       interval: 30s
       timeout: 5s
       retries: 5
