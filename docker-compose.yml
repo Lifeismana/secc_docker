@@ -269,6 +269,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 5s
+    environment:
+      - DISABLE_PASSWORD_AUTH=true
+      - USER_CREATION=true
     networks:
       - net-proxy
     extra_hosts:
