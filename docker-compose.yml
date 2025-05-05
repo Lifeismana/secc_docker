@@ -261,7 +261,7 @@ services:
 
   beszel:
     container_name: beszel
-    image: ghcr.io/henrygd/beszel/beszel:0.10.2
+    image: ghcr.io/henrygd/beszel/beszel:0.11.1
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "/beszel", "health", '--url', 'http://localhost:8090' ]
