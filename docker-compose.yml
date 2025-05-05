@@ -408,7 +408,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - whatsupdocker:/store
-      - ./docker-compose.yml:/wud/docker-compose.yml:ro
       - ./wud/webhook-update.sh:/wud/webhook-update.sh:ro
     healthcheck:
       test: curl --fail http://localhost:3000/health || exit 1 && curl http://localhost:3000/auth/strategies | jq -e '. | length > 0' || exit 1
@@ -424,10 +423,7 @@ services:
       - WUD_WATCHER_LOCAL_WATCHALL=true
       - WUD_AUTH_OIDC_AUTHENTIK_REDIRECT=true
       - WUD_TRIGGER_COMMAND_TAGUPDATE_CMD=/wud/webhook-update.sh
-      # - WUD_TRIGGER_DOCKERCOMPOSE_SECC_FILE=/wud/docker-compose.yml
-      # - WUD_TRIGGER_DOCKERCOMPOSE_SECC_PRUNE=true
-      # - WUD_TRIGGER_DOCKERCOMPOSE_SECC_THRESHOLD=patch
-      # - WUD_TRIGGER_DOCKERCOMPOSE_SECC_AUTO=true
+      - WUD_TRIGGER_COMMAND_TAGUPDATE_AUTO=true
     networks:
       - net-proxy
     labels:
