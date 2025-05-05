@@ -6,14 +6,9 @@ import { fileURLToPath } from 'node:url';
 
 const TO_STRING_OPT = {lineWidth: 0};
 
-let old_image = process.env.OLD_IMAGE;
-let new_image = process.env.NEW_IMAGE;
-
 const filePath = join(dirname(fileURLToPath(import.meta.url)), '../../', 'docker-compose.yml');
 
-console.log('Updating docker-compose.yml...');
-console.log('Old image:', old_image);
-console.log('New image:', new_image);
+
 try {
     const file = readFileSync(filePath, 'utf8');
     const doc = parseDocument(file);
@@ -25,6 +20,20 @@ try {
         writeFileSync(filePath, doc.toString(TO_STRING_OPT));
 
     } else {
+
+        let old_image = process.env.OLD_IMAGE;
+        let new_image = process.env.NEW_IMAGE;
+
+        if (old_image.startsWith('library/')) {
+            old_image = old_image.replace('library/', '');
+        }
+        if (new_image.startsWith('library/')) {
+            new_image = new_image.replace('library/', '');
+        }
+
+        console.log('Updating docker-compose.yml...');
+        console.log('Old image:', old_image);
+        console.log('New image:', new_image);
 
         if (!old_image || !new_image) {
             console.error('Missing environment variables: old_image, new_image');
