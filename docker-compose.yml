@@ -94,7 +94,6 @@ services:
       - homepage.description=Traefik
       - homepage.widget.type=traefik
       - homepage.widget.url=https://traefik.internal.${MAIN_DOMAIN}
-      - wud.watch.digest=true
     restart: unless-stopped
 
   logrotate:
@@ -122,7 +121,6 @@ services:
       - "traefik.http.routers.homepage.entrypoints=websecure"
       - "traefik.http.routers.homepage.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.homepage.middlewares=forwardAuth-authentik,crowdsec"
-      - wud.watch.digest=true
     restart: unless-stopped
     networks:
       - net-proxy
@@ -153,7 +151,6 @@ services:
       - homepage.widget.url=https://portainer.internal.${MAIN_DOMAIN}
       - homepage.widget.env=3
       - homepage.widget.key=${PORTAINER_TOKEN}
-      - wud.watch.digest=true
 
   speedtest-tracker:
     container_name: speedtest-tracker
@@ -187,7 +184,6 @@ services:
       - homepage.href=https://speedtest-tracker.internal.${MAIN_DOMAIN}
       - homepage.widget.type=speedtest
       - homepage.widget.url=https://speedtest-tracker.internal.${MAIN_DOMAIN}
-      - wud.watch.digest=true
     networks:
       - net-proxy
       - net-postgres
@@ -220,7 +216,6 @@ services:
       - homepage.href=https://netalertx.internal.${MAIN_DOMAIN}
       - homepage.widget.type=netalertx
       - homepage.widget.url=https://netalertx.internal.${MAIN_DOMAIN}
-      - wud.watch.digest=true
     network_mode: host
 
   glances:
@@ -257,7 +252,6 @@ services:
       - homepage.widget.url=https://glances.internal.${MAIN_DOMAIN}
       - homepage.widget.version=4
       - homepage.widget.metric=info #,cpu,memory,process
-      - wud.watch.digest=true
 
   beszel:
     container_name: beszel
@@ -284,7 +278,6 @@ services:
       - "traefik.http.routers.beszel.entrypoints=websecure"
       - "traefik.http.routers.beszel.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.beszel.middlewares=tailscaleAL"
-      - wud.watch.digest=true
 
   beszel-agent:
     container_name: beszel-agent
@@ -354,8 +347,6 @@ services:
     networks:
       - net-proxy
       - net-prometheus
-    labels:
-      - wud.watch.digest=true
 
   portainer_agent:
     container_name: portainer_agent
@@ -366,8 +357,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /docker_data/volumes:/var/lib/docker/volumes
-    labels:
-      - wud.watch.digest=true
     networks:
       - net-proxy
 
@@ -432,7 +421,6 @@ services:
       - "traefik.http.routers.whatsupdocker.entrypoints=websecure"
       - "traefik.http.routers.whatsupdocker.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.whatsupdocker.middlewares=tailscaleAL"
-      - wud.watch.digest=true
     depends_on:
       traefik:
         condition: service_started
@@ -453,8 +441,6 @@ services:
     volumes:
       - /data/cloudflareddns/config.json:/config.json
     restart: unless-stopped
-    labels:
-      - wud.watch.digest=true
 
   tailscale-cloudflare-dnssync:
     image: ghcr.io/lifeismana/tailscale-cloudflare-dnssync:main
@@ -465,8 +451,6 @@ services:
       - PUID=1000
       - PGID=994
     restart: unless-stopped
-    labels:
-      - wud.watch.digest=true
 
   postgres-14:
     image: postgres:14
@@ -484,8 +468,6 @@ services:
       - /data_alt/postgres-14:/var/lib/postgresql/data
       - /var/run/postgresql:/var/run/postgresql
     network_mode: none
-    labels:
-      - wud.watch=false
 
   postgres:
     image: postgres:17
@@ -506,7 +488,6 @@ services:
     networks:
       - net-postgres
     labels:
-      - wud.watch.digest=true
       - wud.tag.include=^\d+$
 
   gitea:
@@ -559,7 +540,6 @@ services:
       - "traefik.http.routers.gitea.tls.certresolver=cloudflare_main"
       - "traefik.http.services.gitea.loadbalancer.server.port=3000"
       - "traefik.http.routers.gitea.middlewares=crowdsec"
-      - wud.watch.digest=true
       - crowdsec.enable=true
       - crowdsec.labels.type=gitea
     networks:
@@ -585,8 +565,6 @@ services:
       - /data_alt/redis:/data
     networks:
       - net-redis
-    labels:
-      - wud.watch.digest=true
 
   redis-exporter:
     container_name: redis-exporter
@@ -639,7 +617,6 @@ services:
       - homepage.href=https://prometheus.internal.${MAIN_DOMAIN}
       - homepage.widget.type=prometheus
       - homepage.widget.url=https://prometheus.internal.${MAIN_DOMAIN}
-      - wud.watch.digest=true
 
   influxdb:
     image: influxdb:2.2
@@ -658,7 +635,6 @@ services:
       - "traefik.http.routers.influxdb.tls.certresolver=cloudflare_main"
       - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
       - "traefik.http.routers.influxdb.middlewares=tailscaleAL"
-      - wud.watch.digest=true
       - wud.tag.include=^\d+\.\d+$
     networks:
       - net-proxy
@@ -701,7 +677,6 @@ services:
       - homepage.description=Scrutiny
       - homepage.widget.type=scrutiny
       - homepage.widget.url=https://scrutiny.internal.${MAIN_DOMAIN}
-      - wud.watch.digest=true
     networks:
       - net-proxy
       - net-influxdb
@@ -720,7 +695,6 @@ services:
       - CUSTOM_REDBOT_PACKAGE=git+https://github.com/Cog-Creators/Red-DiscordBot.git@V3/develop#egg=Red-DiscordBot
       - TZ=Europe/Paris
       - EXTRA_ARGS=--dev --rpc #--mentionable
-      - wud.watch.digest=true
     depends_on:
       - postgres-14
     networks:
@@ -741,7 +715,6 @@ services:
       - "traefik.http.routers.reddash.tls.certresolver=cloudflare_main"
       - "traefik.http.services.reddash.loadbalancer.server.port=42356"
       - "traefik.http.routers.reddash.middlewares=crowdsec"
-      - wud.watch.digest=true
     network_mode: "service:redbot"
     depends_on:
       - redbot
@@ -780,7 +753,6 @@ services:
       - homepage.widget.url=https://grafana.internal.${MAIN_DOMAIN}
       - homepage.widget.username=${GRAFANA_USER}
       - homepage.widget.password=${GRAFANA_PASSWORD}
-      - wud.watch.digest=true
     networks:
       - net-proxy
 
@@ -799,8 +771,6 @@ services:
     depends_on:
       - grafana
     network_mode: "service:grafana"
-    labels:
-      - wud.watch.digest=true
 
   asf:
     container_name: asf
@@ -817,7 +787,6 @@ services:
       - "traefik.http.routers.asf.entrypoints=websecure"
       - "traefik.http.routers.asf.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.asf.middlewares=tailscaleAL"
-      - wud.watch.digest=true
     networks:
       - net-proxy
 
@@ -831,8 +800,6 @@ services:
       - /data/steam-watcher:/usr/src/app/config/
     networks:
       - net-proxy
-    labels:
-      - wud.watch.digest=true
 
   # myfeedcord:
   #   image: qolors/feedcord:latest # for amd64 architecture
@@ -854,8 +821,6 @@ services:
       - TZ=Europe/Paris
     networks:
       - net-proxy
-    labels:
-      - wud.watch.digest=true
 
   zipline:
     image: ghcr.io/diced/zipline
@@ -943,7 +908,6 @@ services:
       - "traefik.http.routers.freshrss.entrypoints=websecure"
       - "traefik.http.routers.freshrss.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.freshrss.middlewares=crowdsec,freshrss-compress,freshrss-headers"
-      - wud.watch.digest=true
 
   couchdb:
     image: couchdb:latest
@@ -976,7 +940,6 @@ services:
       - "traefik.http.middlewares.obsidiancors.headers.accesscontrolmaxage=3600"
       - "traefik.http.middlewares.obsidiancors.headers.addvaryheader=true"
       - "traefik.http.middlewares.obsidiancors.headers.accessControlAllowCredentials=true"
-      - wud.watch.digest=true
 
   stirling-pdf:
     container_name: stirling-pdf
@@ -1017,7 +980,6 @@ services:
       - "traefik.http.routers.stirling-pdf.tls.certresolver=cloudflare_main"
       - "traefik.http.services.stirling-pdf.loadbalancer.server.port=8080"
       - "traefik.http.routers.stirling-pdf.middlewares=crowdsec"
-      - wud.watch.digest=true
     depends_on:
       traefik:
         condition: service_started
@@ -1042,7 +1004,6 @@ services:
       - "traefik.http.routers.it-tools.rule=Host(`it-tools.internal.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.it-tools.entrypoints=websecure"
       - "traefik.http.routers.it-tools.tls.certresolver=cloudflare_main"
-      - wud.watch.digest=true
 
   mazanoke:
     container_name: mazanoke
@@ -1061,7 +1022,6 @@ services:
       - "traefik.http.routers.mazanoke.rule=Host(`mazanoke.internal.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.mazanoke.entrypoints=websecure"
       - "traefik.http.routers.mazanoke.tls.certresolver=cloudflare_main"
-      - wud.watch.digest=true
 
   excalidraw:
     container_name: excalidraw
@@ -1074,7 +1034,6 @@ services:
       - "traefik.http.routers.excalidraw.rule=Host(`excalidraw.internal.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.excalidraw.entrypoints=websecure"
       - "traefik.http.routers.excalidraw.tls.certresolver=cloudflare_main"
-      - wud.watch.digest=true
 
   hedgedoc:
     container_name: hedgedoc
@@ -1113,7 +1072,6 @@ services:
       - traefik.http.routers.hedgedoc.rule=Host(`hedgedoc.${MAIN_DOMAIN}`)
       - traefik.http.routers.hedgedoc.entrypoints=websecure
       - traefik.http.routers.hedgedoc.tls.certresolver=cloudflare_main
-      - wud.watch.digest=true
 
   minio:
     container_name: minio
@@ -1155,7 +1113,6 @@ services:
       - "traefik.http.routers.minio-console.middlewares=crowdsec"
       - "traefik.http.routers.minio-console.service=minio-console"
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
-      - wud.watch.digest=true
 
   crowdsec:
     container_name: crowdsec
@@ -1184,8 +1141,6 @@ services:
     ports:
       # needed for the firewall bouncer
       - 127.0.0.1:8080:8080
-    labels:
-      - wud.watch.digest=true
 
   authentik-server:
     container_name: authentik-server
@@ -1223,7 +1178,6 @@ services:
       - homepage.widget.type=authentik
       - homepage.widget.url=https://authentik.${MAIN_DOMAIN}
       - homepage.widget.key=${AUTHENTIK_TOKEN}
-      - wud.watch.digest=true
     depends_on:
       postgres:
         condition: service_healthy
@@ -1258,8 +1212,6 @@ services:
       - net-proxy
       - net-postgres
       - net-redis
-    labels:
-      - wud.watch.digest=true
 
   geoipupdate:
     container_name: geoipupdate
@@ -1272,8 +1224,6 @@ services:
     environment:
       GEOIPUPDATE_EDITION_IDS: "GeoLite2-City GeoLite2-ASN GeoLite2-Country"
       GEOIPUPDATE_FREQUENCY: "8"
-    labels:
-      - wud.watch.digest=true
 
 networks:
   net-proxy:
