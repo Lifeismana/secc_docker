@@ -58,10 +58,10 @@ jobs:
                     PR_EXISTS=$(gh pr list --base main --head '$BRANCH_NAME' --json number --jq '.[].number')
                     if [ -n "$PR_EXISTS" ]; then
                     echo "Pull request #$PR_EXISTS already exists."
-                    gh pr edit '$BRANCH_NAME' --title "Update '$IMAGE_NAME' from '$LOCAL_TAG' to '$REMOTE_TAG'" --body "This PR updates the image from '$OLD_IMAGE' to '$NEW_IMAGE'."
-                    gh pr comment '$BRANCH_NAME' --body "PR UPDATED: Now updating from '$LOCAL_TAG' to '$REMOTE_TAG'."
+                    gh pr edit "$BRANCH_NAME" --title "Update '$IMAGE_NAME' from '$LOCAL_TAG' to '$REMOTE_TAG'" --body "This PR updates the image from '$OLD_IMAGE' to '$NEW_IMAGE'."
+                    gh pr comment "$BRANCH_NAME" --body "PR UPDATED: Now updating from '$LOCAL_TAG' to '$REMOTE_TAG'."
                     else
                     echo "Creating pull request..."
-                    gh pr create --base main --head '$BRANCH_NAME' --title "Update '$IMAGE_NAME' from '$LOCAL_TAG' to '$REMOTE_TAG'" --body "This PR updates the image from '$OLD_IMAGE' to '$NEW_IMAGE'."
-                    gh pr comment '$BRANCH_NAME' --body "PR INIT: Updating from '$OLD_IMAGE' to '$NEW_IMAGE'."
+                    gh pr create --base main --head "$BRANCH_NAME" --title "Update '$IMAGE_NAME' from '$LOCAL_TAG' to '$REMOTE_TAG'" --body "This PR updates the image from '$OLD_IMAGE' to '$NEW_IMAGE'."
+                    gh pr comment "$BRANCH_NAME" --body "PR INIT: Updating from '$OLD_IMAGE' to '$NEW_IMAGE'."
                     fi
