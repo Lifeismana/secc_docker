@@ -1,0 +1,67 @@
+name: Image Version Update
+
+on:
+    workflow_dispatch:
+        inputs:
+            remote_tag:
+                description: 'Remote version'
+                required: true
+            local_tag:
+                description: 'Local version'
+                required: true
+            image_name:
+                description: 'Image name'
+                required: true
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    update-image-version:
+        runs-on: ubuntu-latest
+        env:
+            REMOTE_TAG: ${{ github.event.inputs.remote_tag }}
+            LOCAL_TAG: ${{ github.event.inputs.local_tag }}
+            IMAGE_NAME: ${{ github.event.inputs.image_name }}
+            OLD_IMAGE: ${{ github.event.inputs.image_name }}:${{ github.event.inputs.local_tag }}
+            NEW_IMAGE: ${{ github.event.inputs.image_name }}:${{ github.event.inputs.remote_tag }}
+            BRANCH_NAME: update/${{ github.event.inputs.image_name }}
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v4
+            -   name: Setup branch
+                run: |
+                    git config user.name github-actions
+                    git config user.email github-actions@github.com
+                    git checkout -b ${{ env.BRANCH_NAME }}
+            -   name: Setup Node.js
+                uses: actions/setup-node@v4
+                with:
+                    node-version: 'lts/*'
+                    cache: 'npm'
+                    cache-dependency-path: '.github/tag-update/package-lock.json'
+
+            -   name: Update image version
+                run: |
+                    cd .github/tag-update
+                    npm ci
+                    ./update.mjs
+            -   name: Commit changes
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    git add docker-compose.yml
+                    git commit -m "Update '$IMAGE_NAME' from '$LOCAL_TAG' to '$REMOTE_TAG'"
+                    git push -f origin "$BRANCH_NAME"
+
+                    PR_EXISTS=$(gh pr list --base main --head '$BRANCH_NAME' --json number --jq '.[].number')
+                    if [ -n "$PR_EXISTS" ]; then
+                    echo "Pull request #$PR_EXISTS already exists."
+                    gh pr edit '$BRANCH_NAME' --title "Update '$IMAGE_NAME' from '$LOCAL_TAG' to '$REMOTE_TAG'" --body "This PR updates the image from '$OLD_IMAGE' to '$NEW_IMAGE'."
+                    gh pr comment '$BRANCH_NAME' --body "PR UPDATED: Now updating from '$LOCAL_TAG' to '$REMOTE_TAG'."
+                    else
+                    echo "Creating pull request..."
+                    gh pr create --base main --head '$BRANCH_NAME' --title "Update '$IMAGE_NAME' from '$LOCAL_TAG' to '$REMOTE_TAG'" --body "This PR updates the image from '$OLD_IMAGE' to '$NEW_IMAGE'."
+                    gh pr comment '$BRANCH_NAME' --body "PR INIT: Updating from '$OLD_IMAGE' to '$NEW_IMAGE'."
+                    fi
