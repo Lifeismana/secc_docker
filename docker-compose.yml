@@ -454,7 +454,7 @@ services:
     restart: unless-stopped
 
   postgres-14:
-    image: postgres:14
+    image: postgres:17.4-bullseye
     container_name: postgres-14
     restart: unless-stopped
     env_file:
