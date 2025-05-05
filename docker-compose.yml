@@ -94,6 +94,7 @@ services:
       - homepage.description=Traefik
       - homepage.widget.type=traefik
       - homepage.widget.url=https://traefik.internal.${MAIN_DOMAIN}
+      - wud.tag.include=^v\d+\.\d+$
     restart: unless-stopped
 
   logrotate:
