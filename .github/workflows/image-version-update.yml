@@ -26,7 +26,7 @@ jobs:
             BRANCH_NAME: update/${{ github.event.inputs.image_name }}
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v3
+                uses: actions/checkout@v4
             -   name: Setup branch
                 run: |
                     git config user.name github-actions
