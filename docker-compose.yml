@@ -13,7 +13,7 @@ services:
       net-prometheus:
       net-redis:
     healthcheck:
-      test: ["CMD", "traefik", "healthcheck", "--ping"] 
+      test: [ "CMD", "traefik", "healthcheck", "--ping" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -29,7 +29,7 @@ services:
       - /home/cert-syno/cert:/syno:ro,uid=1001,gid=1001
       - ./traefik/traefik_dynamic.yaml:/etc/traefik/traefik_dynamic.yaml
       - logs-traefik:/var/log/traefik
-    command: 
+    command:
       - "--api.dashboard=true"
       - "--metrics.prometheus=true"
       - "--ping=true"
@@ -231,7 +231,7 @@ services:
     privileged: true
     network_mode: "host"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:61208/api/4/status"]
+      test: [ "CMD", "curl", "-f", "http://localhost:61208/api/4/status" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -264,7 +264,7 @@ services:
     image: ghcr.io/henrygd/beszel/beszel:0.10.2
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "/beszel", "health", '--url', 'http://localhost:8090']
+      test: [ "CMD", "/beszel", "health", '--url', 'http://localhost:8090' ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -291,7 +291,7 @@ services:
     image: ghcr.io/henrygd/beszel/beszel-agent:0.10.2
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "/agent", "health"]
+      test: [ "CMD", "/agent", "health" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -313,7 +313,7 @@ services:
     image: amir20/dozzle:latest
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "/dozzle", "healthcheck"]
+      test: [ "CMD", "/dozzle", "healthcheck" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -346,7 +346,7 @@ services:
       - "-max_mind_db=/geo-data/GeoLite2-City.mmdb"
       - "-enable_prometheus"
     ports:
-    # TODO: change 222 to 22 when i'll have changed the ssh port on the server
+      # TODO: change 222 to 22 when i'll have changed the ssh port on the server
       - '222:222'
     volumes:
       - geoip:/geo-data/:ro
@@ -389,7 +389,7 @@ services:
       - "traefik.http.routers.watchtower.rule=Host(`watchtower.internal.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.watchtower.entrypoints=websecure"
       - "traefik.http.routers.watchtower.tls.certresolver=cloudflare_main"
-      - "traefik.http.routers.watchtower.middlewares=tailscaleAL" 
+      - "traefik.http.routers.watchtower.middlewares=tailscaleAL"
       - homepage.group=Main
       - homepage.name=Watchtower
       - homepage.icon=watchtower.png
@@ -479,7 +479,7 @@ services:
     env_file:
       - env/postgres-14.env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      test: [ "CMD-SHELL", "pg_isready", "-U", "postgres" ]
       start_period: 20s
       interval: 30s
       retries: 5
@@ -500,7 +500,7 @@ services:
     # ports:
     #   - 127.0.0.1:5432:5432
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      test: [ "CMD-SHELL", "pg_isready", "-U", "postgres" ]
       start_period: 20s
       interval: 30s
       retries: 5
@@ -519,7 +519,7 @@ services:
     container_name: gitea
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/healthz" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -556,7 +556,7 @@ services:
       - /data_alt/gitea/config:/etc/gitea
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    labels: 
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.gitea.rule=Host(`git.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.gitea.entrypoints=websecure"
@@ -580,7 +580,7 @@ services:
     command: --save 60 1 --loglevel warning
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
       start_period: 20s
       interval: 30s
       retries: 5
@@ -603,14 +603,14 @@ services:
       - net-redis
       - net-prometheus
 
-# TODO: add thanos
+  # TODO: add thanos
   prometheus:
     container_name: prometheus
     image: quay.io/prometheus/prometheus
     restart: unless-stopped
     healthcheck:
-    # not sure why the /healthy endpoint is not working as doc mentions
-      test: ["CMD-SHELL", "wget -O - http://localhost:9090 &>/dev/null"]
+      # not sure why the /healthy endpoint is not working as doc mentions
+      test: [ "CMD-SHELL", "wget -O - http://localhost:9090 &>/dev/null" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -651,7 +651,7 @@ services:
     volumes:
       - '/data_alt/influxdb:/var/lib/influxdb2'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -686,7 +686,7 @@ services:
       influxdb:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/health" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -719,7 +719,7 @@ services:
       - /data_alt/.ssh/red_github/:/config/.ssh/
       - /data_alt/.pylav-red/pylav.yaml:/config/pylav.yaml
       - /var/run/postgresql:/var/run/postgresql
-      - /data_alt/.pylav-red/PyLav:/config/.config/PyLav     
+      - /data_alt/.pylav-red/PyLav:/config/.config/PyLav
     environment:
       - CUSTOM_REDBOT_PACKAGE=git+https://github.com/Cog-Creators/Red-DiscordBot.git@V3/develop#egg=Red-DiscordBot
       - TZ=Europe/Paris
@@ -738,7 +738,7 @@ services:
       - TZ=Europe/Paris
     volumes:
       - /data_alt/red-dashboard:/data
-    labels: 
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.reddash.rule=Host(`red-dashboard.${MAIN_DOMAIN}`)"
       - "traefik.http.routers.reddash.entrypoints=websecure"
@@ -755,7 +755,7 @@ services:
     image: grafana/grafana:latest
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:3000/api/health" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -794,13 +794,13 @@ services:
     environment:
       - ENABLE_METRICS=true
     healthcheck:
-      test: ["CMD-SHELL", "wget -O - http://localhost:8081 &>/dev/null"]
+      test: [ "CMD-SHELL", "wget -O - http://localhost:8081 &>/dev/null" ]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 30s
     restart: unless-stopped
-    depends_on: 
+    depends_on:
       - grafana
     network_mode: "service:grafana"
     labels:
@@ -954,7 +954,7 @@ services:
     container_name: obsidian-livesync
     user: 1000:1000
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5984/_up"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:5984/_up" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -988,12 +988,12 @@ services:
     restart: unless-stopped
     healthcheck:
       #test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/info/status | grep -q 'UP' && curl -fL http://localhost:8080/ | grep -qv 'Login via Single Sign-on'"]
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/info/status | grep -q 'UP'"]
-      interval: 30s 
-      timeout: 5s 
-      retries: 5 
-      start_period: 30s 
-      
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/api/v1/info/status | grep -q 'UP'" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
     env_file:
       - env/stirling-pdf.env
     volumes:
@@ -1035,7 +1035,7 @@ services:
     image: ghcr.io/corentinth/it-tools:latest
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:80" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -1053,7 +1053,7 @@ services:
     image: ghcr.io/civilblur/mazanoke:latest
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget -O - http://localhost:80 &>/dev/null"]
+      test: [ "CMD-SHELL", "wget -O - http://localhost:80 &>/dev/null" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -1098,7 +1098,7 @@ services:
       - CMD_EMAIL=false
       - CMD_ALLOW_EMAIL_REGISTER=false
       - CMD_OAUTH2_PROVIDERNAME=authentik
-      - CMD_OAUTH2_SCOPE=openid profile email 
+      - CMD_OAUTH2_SCOPE=openid profile email
       - CMD_OAUTH2_USER_PROFILE_URL=https://authentik.${MAIN_DOMAIN}/application/o/userinfo/
       - CMD_OAUTH2_TOKEN_URL=https://authentik.${MAIN_DOMAIN}/application/o/token/
       - CMD_OAUTH2_AUTHORIZATION_URL=https://authentik.${MAIN_DOMAIN}/application/o/authorize/
@@ -1128,7 +1128,7 @@ services:
     env_file:
       - env/minio.env
     environment:
-    # not quite clear why minio doesn't like MINIO_DOMAIN with traefik
+      # not quite clear why minio doesn't like MINIO_DOMAIN with traefik
       - MINIO_ENABLE_COMPRESSION=on
       - MINIO_BROWSER_REDIRECT_URL=https://minio.internal.${MAIN_DOMAIN}
       - MINIO_IDENTITY_OPENID_CONFIG_URL=https://authentik.${MAIN_DOMAIN}/application/o/minio/.well-known/openid-configuration
@@ -1140,7 +1140,7 @@ services:
       - net-postgres
       - net-prometheus
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: [ "CMD", "mc", "ready", "local" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -1270,14 +1270,14 @@ services:
     restart: unless-stopped
     image: ghcr.io/maxmind/geoipupdate:latest
     volumes:
-        - "geoip:/usr/share/GeoIP"
+      - "geoip:/usr/share/GeoIP"
     env_file:
-        - env/geoipupdate.env
+      - env/geoipupdate.env
     environment:
-        GEOIPUPDATE_EDITION_IDS: "GeoLite2-City GeoLite2-ASN GeoLite2-Country"
-        GEOIPUPDATE_FREQUENCY: "8"
+      GEOIPUPDATE_EDITION_IDS: "GeoLite2-City GeoLite2-ASN GeoLite2-Country"
+      GEOIPUPDATE_FREQUENCY: "8"
     labels:
-        - wud.watch.digest=true
+      - wud.watch.digest=true
 
 networks:
   net-proxy:
@@ -1287,8 +1287,8 @@ networks:
       config:
         - subnet: 172.25.0.0/16
   net-postgres:
-    name: net-postgres 
-    driver: bridge 
+    name: net-postgres
+    driver: bridge
     internal: true
   net-redis:
     name: net-redis
