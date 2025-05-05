@@ -1,0 +1,20 @@
+# action to delete the branch after merging a pull request
+name: Delete Update Branch on PR Merge
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - update/**
+jobs:
+  delete-branch:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Delete branch
+        run: |
+          git push origin --delete ${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
