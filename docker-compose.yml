@@ -828,7 +828,7 @@ services:
       - net-proxy
 
   zipline:
-    image: ghcr.io/diced/zipline:v4
+    image: ghcr.io/diced/zipline:trunk-1801287-arm64
     container_name: zipline
     restart: unless-stopped
     env_file:
