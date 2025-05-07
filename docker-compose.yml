@@ -94,7 +94,7 @@ services:
       - homepage.description=Traefik
       - homepage.widget.type=traefik
       - homepage.widget.url=https://traefik.internal.${MAIN_DOMAIN}
-      - wud.tag.include=^v\d+\.\d+$
+      - wud.tag.include=^v\d+\.\d+$$
     restart: unless-stopped
 
   logrotate:
@@ -122,6 +122,7 @@ services:
       - "traefik.http.routers.homepage.entrypoints=websecure"
       - "traefik.http.routers.homepage.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.homepage.middlewares=forwardAuth-authentik,crowdsec"
+      - wud.tag.include=^v\d+\.\d+$$
     restart: unless-stopped
     networks:
       - net-proxy
@@ -152,6 +153,7 @@ services:
       - homepage.widget.url=https://portainer.internal.${MAIN_DOMAIN}
       - homepage.widget.env=3
       - homepage.widget.key=${PORTAINER_TOKEN}
+      - wud.tag.include=^\d+\.\d+\.\d+$$
 
   speedtest-tracker:
     container_name: speedtest-tracker
@@ -253,6 +255,7 @@ services:
       - homepage.widget.url=https://glances.internal.${MAIN_DOMAIN}
       - homepage.widget.version=4
       - homepage.widget.metric=info #,cpu,memory,process
+      - wud.tag.include=^\d+\.\d+\.\d+$$
 
   beszel:
     container_name: beszel
@@ -329,10 +332,10 @@ services:
       - "traefik.http.routers.dozzle.entrypoints=websecure"
       - "traefik.http.routers.dozzle.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.dozzle.middlewares=tailscaleAL,forwardAuth-authentik"
+      - wud.tag.include=^v\d+$$
 
   endlessh:
     container_name: endlessh
-    #? maybe use a fixed version instead of latest but version scheme is horrible
     image: shizunge/endlessh-go:latest
     command:
       - "-logtostderr"
@@ -361,6 +364,8 @@ services:
       - /docker_data/volumes:/var/lib/docker/volumes
     networks:
       - net-proxy
+    labels:
+      - wud.tag.include=^\d+\.\d+\.\d+$$
 
   watchtower:
     container_name: watchtower
@@ -388,6 +393,7 @@ services:
       - homepage.widget.type=watchtower
       - homepage.widget.url=https://watchtower.internal.${MAIN_DOMAIN}
       - homepage.widget.key=${WATCHTOWER_TOKEN}
+      - wud.tag.include=^\d+\.\d+\.\d+$$
     restart: unless-stopped
     networks:
       - net-proxy
@@ -423,6 +429,7 @@ services:
       - "traefik.http.routers.whatsupdocker.entrypoints=websecure"
       - "traefik.http.routers.whatsupdocker.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.whatsupdocker.middlewares=tailscaleAL"
+      - wud.tag.include=^\d+\.\d+\.\d+$$
     depends_on:
       traefik:
         condition: service_started
@@ -492,7 +499,7 @@ services:
     networks:
       - net-postgres
     labels:
-      - wud.tag.include=^\d+$
+      - wud.tag.include=^\d+$$
 
   gitea:
     #TODO: change this once 1.24 is out (this is nightly rootless 1.24)
@@ -569,6 +576,8 @@ services:
       - /data_alt/redis:/data
     networks:
       - net-redis
+    labels:
+      - wud.tag.include=^\d+-alpine$$
 
   redis-exporter:
     container_name: redis-exporter
@@ -621,6 +630,7 @@ services:
       - homepage.href=https://prometheus.internal.${MAIN_DOMAIN}
       - homepage.widget.type=prometheus
       - homepage.widget.url=https://prometheus.internal.${MAIN_DOMAIN}
+      - wud.tag.include=^v\d+\.\d+\.\d+$$
 
   influxdb:
     image: influxdb:2.2
@@ -639,13 +649,12 @@ services:
       - "traefik.http.routers.influxdb.tls.certresolver=cloudflare_main"
       - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
       - "traefik.http.routers.influxdb.middlewares=tailscaleAL"
-      - wud.tag.include=^\d+\.\d+$
+      - wud.tag.include=^\d+\.\d+$$
     networks:
       - net-proxy
       - net-influxdb
 
   scrutiny-web:
-    #TODO: use a fixed version once there's more recent release
     image: ghcr.io/analogj/scrutiny:master-web
     container_name: scrutiny-web
     volumes:
@@ -758,6 +767,7 @@ services:
       - homepage.widget.url=https://grafana.internal.${MAIN_DOMAIN}
       - homepage.widget.username=${GRAFANA_USER}
       - homepage.widget.password=${GRAFANA_PASSWORD}
+      - wud.tag.include=^\d+\.\d+\.\d+$$
     networks:
       - net-proxy
 
@@ -776,6 +786,8 @@ services:
     depends_on:
       - grafana
     network_mode: "service:grafana"
+    labels:
+      - wud.tag.include=^\d+\.\d+\.\d+$$
 
   asf:
     container_name: asf
@@ -845,6 +857,7 @@ services:
       - "traefik.http.routers.zipline.entrypoints=websecure"
       - "traefik.http.routers.zipline.tls.certresolver=cloudflare_main"
       - "traefik.http.services.zipline.loadbalancer.server.port=3000"
+      - wud.tag.include=^v\d+$$
     networks:
       - net-postgres
       - net-proxy
@@ -913,6 +926,7 @@ services:
       - "traefik.http.routers.freshrss.entrypoints=websecure"
       - "traefik.http.routers.freshrss.tls.certresolver=cloudflare_main"
       - "traefik.http.routers.freshrss.middlewares=crowdsec,freshrss-compress,freshrss-headers"
+      - wud.tag.include=^\d+$$
 
   couchdb:
     image: couchdb:3
@@ -945,6 +959,7 @@ services:
       - "traefik.http.middlewares.obsidiancors.headers.accesscontrolmaxage=3600"
       - "traefik.http.middlewares.obsidiancors.headers.addvaryheader=true"
       - "traefik.http.middlewares.obsidiancors.headers.accessControlAllowCredentials=true"
+      - wud.tag.include=^\d+$$
 
   stirling-pdf:
     container_name: stirling-pdf
@@ -957,7 +972,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-
     env_file:
       - env/stirling-pdf.env
     volumes:
@@ -985,6 +999,7 @@ services:
       - "traefik.http.routers.stirling-pdf.tls.certresolver=cloudflare_main"
       - "traefik.http.services.stirling-pdf.loadbalancer.server.port=8080"
       - "traefik.http.routers.stirling-pdf.middlewares=crowdsec"
+      - wud.tag.include=^\d+\.\d+\.\d+-fat$$
     depends_on:
       traefik:
         condition: service_started
