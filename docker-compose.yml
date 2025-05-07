@@ -438,6 +438,15 @@ services:
         condition: service_healthy
         restart: false
 
+  monodocker:
+    container_name: monodocker
+    image: petersem/monocker
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - env/monodocker.env
+
   cloudflare-ddns:
     image: timothyjmiller/cloudflare-ddns:latest
     container_name: cloudflare-ddns
