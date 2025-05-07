@@ -128,7 +128,7 @@ services:
 
   portainer:
     container_name: portainer
-    image: portainer/portainer-ce:2.29.2
+    image: portainer/portainer-ce:windowsltsc2022-amd64-2.9.3
     restart: unless-stopped
     #ports:
     #  - '9000:9000'
