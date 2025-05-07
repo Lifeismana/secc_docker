@@ -4,9 +4,14 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - update/**
+      - main
+
+permissions:
+  contents: write
+
 jobs:
   delete-branch:
+    if: startsWith(github.head_ref, 'update/')
     #if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
