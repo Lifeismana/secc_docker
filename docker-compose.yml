@@ -352,7 +352,7 @@ services:
 
   portainer_agent:
     container_name: portainer_agent
-    image: portainer/agent:2.29.2
+    image: portainer/agent:dbg13062019
     restart: unless-stopped
     #ports:
     #  - 9001:9001
