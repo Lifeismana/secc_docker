@@ -109,7 +109,7 @@ services:
       CRON_SCHEDULE: "0 * * * *"
 
   homepage:
-    image: ghcr.io/gethomepage/homepage:latest
+    image: ghcr.io/gethomepage/homepage:v1.2
     container_name: homepage
     environment:
       - HOMEPAGE_ALLOWED_HOSTS=home.${MAIN_DOMAIN}
@@ -128,7 +128,7 @@ services:
 
   portainer:
     container_name: portainer
-    image: portainer/portainer-ce:sts
+    image: portainer/portainer-ce:2.29.2
     restart: unless-stopped
     #ports:
     #  - '9000:9000'
@@ -220,7 +220,7 @@ services:
     network_mode: host
 
   glances:
-    image: nicolargo/glances:dev
+    image: nicolargo/glances:4.3.1
     container_name: glances
     restart: unless-stopped
     pid: host
@@ -304,7 +304,7 @@ services:
 
   dozzle:
     container_name: dozzle
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:v8
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "/dozzle", "healthcheck" ]
@@ -332,6 +332,7 @@ services:
 
   endlessh:
     container_name: endlessh
+    #? maybe use a fixed version instead of latest but version scheme is horrible
     image: shizunge/endlessh-go:latest
     command:
       - "-logtostderr"
@@ -351,7 +352,7 @@ services:
 
   portainer_agent:
     container_name: portainer_agent
-    image: portainer/agent:sts
+    image: portainer/agent:2.29.2
     restart: unless-stopped
     #ports:
     #  - 9001:9001
@@ -363,7 +364,7 @@ services:
 
   watchtower:
     container_name: watchtower
-    image: ghcr.io/nicholas-fedor/watchtower
+    image: ghcr.io/nicholas-fedor/watchtower:1.9.1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -392,7 +393,7 @@ services:
       - net-proxy
 
   whatsupdocker:
-    image: getwud/wud
+    image: getwud/wud:8.0.1
     container_name: whatsupdocker
     restart: unless-stopped
     volumes:
@@ -555,7 +556,7 @@ services:
 
   redis:
     container_name: redis
-    image: docker.io/library/redis:alpine
+    image: docker.io/library/redis:8-alpine
     command: --save 60 1 --loglevel warning
     restart: unless-stopped
     healthcheck:
@@ -571,7 +572,7 @@ services:
 
   redis-exporter:
     container_name: redis-exporter
-    image: ghcr.io/oliver006/redis_exporter:latest
+    image: ghcr.io/oliver006/redis_exporter:v1.71.0
     restart: unless-stopped
     environment:
       - REDIS_ADDR=redis:6379
@@ -583,7 +584,7 @@ services:
   # TODO: add thanos
   prometheus:
     container_name: prometheus
-    image: quay.io/prometheus/prometheus
+    image: quay.io/prometheus/prometheus:v3.3.1
     restart: unless-stopped
     healthcheck:
       # not sure why the /healthy endpoint is not working as doc mentions
@@ -644,6 +645,7 @@ services:
       - net-influxdb
 
   scrutiny-web:
+    #TODO: use a fixed version once there's more recent release
     image: ghcr.io/analogj/scrutiny:master-web
     container_name: scrutiny-web
     volumes:
@@ -724,7 +726,7 @@ services:
 
   grafana:
     container_name: grafana
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.0.0
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:3000/api/health" ]
@@ -761,7 +763,7 @@ services:
 
   renderer:
     container_name: grafana-renderer
-    image: grafana/grafana-image-renderer:latest
+    image: grafana/grafana-image-renderer:3.12.5
     environment:
       - ENABLE_METRICS=true
     healthcheck:
@@ -826,7 +828,7 @@ services:
       - net-proxy
 
   zipline:
-    image: ghcr.io/diced/zipline
+    image: ghcr.io/diced/zipline:v4
     container_name: zipline
     restart: unless-stopped
     env_file:
@@ -877,7 +879,7 @@ services:
       - net-redis
 
   freshrss:
-    image: freshrss/freshrss:latest
+    image: freshrss/freshrss:1
     container_name: freshrss
     restart: unless-stopped
     env_file:
@@ -913,7 +915,7 @@ services:
       - "traefik.http.routers.freshrss.middlewares=crowdsec,freshrss-compress,freshrss-headers"
 
   couchdb:
-    image: couchdb:latest
+    image: couchdb:3
     container_name: obsidian-livesync
     user: 1000:1000
     healthcheck:
@@ -946,7 +948,7 @@ services:
 
   stirling-pdf:
     container_name: stirling-pdf
-    image: ghcr.io/stirling-tools/stirling-pdf:latest-fat
+    image: ghcr.io/stirling-tools/stirling-pdf:0.46.0-fat
     restart: unless-stopped
     healthcheck:
       #test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/info/status | grep -q 'UP' && curl -fL http://localhost:8080/ | grep -qv 'Login via Single Sign-on'"]
@@ -1010,7 +1012,7 @@ services:
 
   mazanoke:
     container_name: mazanoke
-    image: ghcr.io/civilblur/mazanoke:latest
+    image: ghcr.io/civilblur/mazanoke:v1.1.4
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "wget -O - http://localhost:80 &>/dev/null" ]
