@@ -915,7 +915,7 @@ services:
       - "traefik.http.routers.freshrss.middlewares=crowdsec,freshrss-compress,freshrss-headers"
 
   couchdb:
-    image: couchdb:3
+    image: couchdb:3.5.0
     container_name: obsidian-livesync
     user: 1000:1000
     healthcheck:
