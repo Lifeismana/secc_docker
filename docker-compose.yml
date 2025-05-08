@@ -1015,6 +1015,37 @@ services:
     networks:
       - net-meilisearch
 
+  opengist:
+      image: ghcr.io/thomiceli/opengist:1.10
+      container_name: opengist
+      restart: unless-stopped
+      healthcheck:
+        test: [ "CMD-SHELL", "curl -f http://localhost:6157/healthcheck" ]
+        interval: 30s
+        timeout: 5s
+        retries: 5
+        start_period: 30s
+      env_file:
+        - env/opengist.env
+      environment:
+        - TZ=Europe/Paris
+        - OG_OIDC_DISCOVERY_URL=https://authentik.${MAIN_DOMAIN}/application/o/opengist/.well-known/openid-configuration
+        - OG_OIDC_PROVIDER_NAME=authentik
+        - OG_METRICS_ENABLED=true
+      volumes:
+        - /data/opengist:/opengist
+      networks:
+        - net-proxy
+        - net-postgres
+        - net-prometheus
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.opengist.rule=Host(`gist.${SECONDARY_DOMAIN}`) && !PathPrefix(`/metrics`)"
+        - "traefik.http.routers.opengist.entrypoints=websecure"
+        - "traefik.http.routers.opengist.tls.certresolver=cloudflare_main"
+        - "traefik.http.services.opengist.loadbalancer.server.port=6157"
+        - wud.tag.include=^\d+\.\d+$$
+
   stirling-pdf:
     container_name: stirling-pdf
     image: ghcr.io/stirling-tools/stirling-pdf:0.46.0-fat
