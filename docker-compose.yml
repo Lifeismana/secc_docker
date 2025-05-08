@@ -970,6 +970,51 @@ services:
       - "traefik.http.middlewares.obsidiancors.headers.accessControlAllowCredentials=true"
       - wud.tag.include=^\d+$$
 
+  linkwarden:
+    image: ghcr.io/linkwarden/linkwarden:v2.10.2
+    container_name: linkwarden
+    restart: unless-stopped
+    env_file:
+      - env/linkwarden.env
+    environment:
+      - TZ=Europe/Paris
+      - NEXTAUTH_URL=https://linkwarden.${MAIN_DOMAIN}/api/v1/auth
+      - SPACES_ENDPOINT=http://minio/
+      - SPACES_BUCKET_NAME=linkwarden
+      - SPACES_REGION=eu-west-1
+      - SPACES_FORCE_PATH_STYLE=true
+      - NEXT_PUBLIC_AUTHENTIK_ENABLED=true
+      - AUTHENTIK_ISSUER=https://authentik.${MAIN_DOMAIN}/application/o/linkwarden
+      - MEILI_HOST=http://meilisearch:7700
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.linkwarden.rule=Host(`linkwarden.${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.linkwarden.entrypoints=websecure"
+      - "traefik.http.routers.linkwarden.tls.certresolver=cloudflare_main"
+      - "traefik.http.services.linkwarden.loadbalancer.server.port=3000"
+      - wud.tag.include=^v\d+\.\d+\.\d+$$
+    depends_on:
+      - minio
+      - postgres
+      - meilisearch
+    networks:
+      - net-proxy
+      - net-postgres
+      - net-meilisearch
+  
+  meilisearch:
+    image: getmeili/meilisearch:v1.14
+    container_name: meilisearch
+    restart: unless-stopped
+    env_file:
+      - env/meilisearch.env
+    labels:
+      - wud.tag.include=^v\d+\.\d+$$
+    volumes:
+      - /data/meilisearch:/meili_data
+    networks:
+      - net-meilisearch
+
   stirling-pdf:
     container_name: stirling-pdf
     image: ghcr.io/stirling-tools/stirling-pdf:0.46.0-fat
@@ -1275,6 +1320,10 @@ networks:
     internal: true
   net-prometheus:
     name: net-prometheus
+    driver: bridge
+    internal: true
+  net-meilisearch:
+    name: net-meilisearch
     driver: bridge
     internal: true
 
