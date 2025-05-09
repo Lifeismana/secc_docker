@@ -1232,6 +1232,7 @@ services:
       start_period: 15s
     environment:
       - COLLECTIONS=LePresidente/gitea crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules crowdsecurity/sshd
+      - POSTOVERFLOWS=crowdsecurity/rdns
       - CUSTOM_HOSTNAME=DockerMonster
       - BOUNCER_KEY_TraefikBouncer=${CROWDSEC_LAPI_KEY}
       - GID=1000
