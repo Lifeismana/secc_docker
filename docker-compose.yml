@@ -37,6 +37,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.network=net-proxy"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.allowEmptyServices=true"
       - "--providers.file.filename=/etc/traefik/traefik_dynamic.yaml"
       - "--accesslog"
       - "--accesslog.filepath=/var/log/traefik/access.log"
