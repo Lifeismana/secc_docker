@@ -590,7 +590,7 @@ services:
 
   redis-exporter:
     container_name: redis-exporter
-    image: ghcr.io/oliver006/redis_exporter:v1.71.0
+    image: ghcr.io/oliver006/redis_exporter:v1.72.1
     restart: unless-stopped
     environment:
       - REDIS_ADDR=redis:6379
