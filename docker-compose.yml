@@ -644,7 +644,7 @@ services:
       - wud.tag.include=^v\d+\.\d+\.\d+$$
 
   influxdb:
-    image: influxdb:2.2
+    image: influxdb:2.7
     container_name: influxdb
     volumes:
       - '/data_alt/influxdb:/var/lib/influxdb2'
