@@ -3,6 +3,8 @@ import { parseDocument, visit } from 'yaml';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { appendFileSync } from 'node:fs';
+import { EOL } from 'node:os';
 
 const TO_STRING_OPT = {lineWidth: 0};
 
@@ -24,6 +26,11 @@ try {
         let old_image = process.env.OLD_IMAGE;
         let new_image = process.env.NEW_IMAGE;
 
+        if (!old_image || !new_image) {
+            console.error(`Missing environment variables: ${old_image}, ${new_image}`);
+            process.exit(1);
+        }
+
         if (old_image.startsWith('library/')) {
             old_image = old_image.replace('library/', '');
         }
@@ -35,13 +42,10 @@ try {
         console.log('Old image:', old_image);
         console.log('New image:', new_image);
 
-        if (!old_image || !new_image) {
-            console.error('Missing environment variables: old_image, new_image');
-            process.exit(1);
-        }
         if (old_image === new_image) {
             console.error('Old image and new image are the same');
-            process.exit(1);
+            appendFileSync(process.env.GITHUB_OUTPUT, `changed=false${EOL}`);
+            process.exit(0);
         }
         const services = doc.contents.get('services');
         let updateCount = 0;
@@ -64,6 +68,7 @@ try {
         if (updateCount > 0) {
             writeFileSync(filePath, doc.toString(TO_STRING_OPT));
             console.log(`Updated ${updateCount} services in docker-compose.yml`);
+            appendFileSync(process.env.GITHUB_OUTPUT, `changed=true${EOL}`);
         }
         else {
             console.log('No services found with the specified old image');

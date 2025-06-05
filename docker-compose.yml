@@ -417,11 +417,12 @@ services:
       - env/whats-up-docker.env
     environment:
       - TZ=Europe/Paris
-      - WUD_WATCHER_LOCAL_CRON=0 5 * * *
+      - WUD_WATCHER_LOCAL_CRON=0 6 * * *
       - WUD_WATCHER_LOCAL_WATCHALL=true
       - WUD_AUTH_OIDC_AUTHENTIK_REDIRECT=true
       - WUD_TRIGGER_COMMAND_TAGUPDATE_CMD=/wud/webhook-update.sh
       - WUD_TRIGGER_COMMAND_TAGUPDATE_AUTO=true
+      - WUD_TRIGGER_COMMAND_TAGUPDATE_MODE=batch
     networks:
       - net-proxy
     labels:

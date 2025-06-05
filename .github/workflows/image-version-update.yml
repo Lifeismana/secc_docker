@@ -3,14 +3,8 @@ name: Image Version Update
 on:
     workflow_dispatch:
         inputs:
-            remote_tag:
-                description: 'Remote version'
-                required: true
-            local_tag:
-                description: 'Local version'
-                required: true
-            image_name:
-                description: 'Image name'
+            json:
+                description: 'Containers JSON'
                 required: true
 
 permissions:
@@ -20,21 +14,30 @@ permissions:
 jobs:
     update-image-version:
         runs-on: ubuntu-latest
-        env:
-            REMOTE_TAG: ${{ github.event.inputs.remote_tag }}
-            LOCAL_TAG: ${{ github.event.inputs.local_tag }}
-            IMAGE_NAME: ${{ github.event.inputs.image_name }}
-            OLD_IMAGE: ${{ github.event.inputs.image_name }}:${{ github.event.inputs.local_tag }}
-            NEW_IMAGE: ${{ github.event.inputs.image_name }}:${{ github.event.inputs.remote_tag }}
-            BRANCH_NAME: update/${{ github.event.inputs.image_name }}
+        strategy:
+            fail-fast: false
+            matrix:
+                json: ${{ fromJSON(github.event.inputs.json) }}
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v4
-            -   name: Setup branch
+            
+            -   name: Setup ENVs
+                env:
+                    CONTAINER_JSON: ${{ toJson(matrix.json) }}
+                run: |
+                    echo "$CONTAINER_JSON" | jq -r 'to_entries | .[] | .key + "=" + (.value|tostring)' >> $GITHUB_ENV
+            -   name: Setup ENVs v2
+                run: |
+                    echo "OLD_IMAGE=$IMAGE_NAME:$LOCAL_TAG" >> $GITHUB_ENV
+                    echo "NEW_IMAGE=$IMAGE_NAME:$REMOTE_TAG" >> $GITHUB_ENV
+                    echo "BRANCH_NAME=update/$IMAGE_NAME" >> $GITHUB_ENV
+            -   name: Setup Branch
                 run: |
                     git config user.name github-actions
                     git config user.email github-actions@github.com
-                    git checkout -b ${{ env.BRANCH_NAME }}
+                    git checkout -b "$BRANCH_NAME"
+
             -   name: Setup Node.js
                 uses: actions/setup-node@v4
                 with:
@@ -42,15 +45,24 @@ jobs:
                     cache: 'npm'
                     cache-dependency-path: '.github/tag-update/package-lock.json'
 
-            -   name: Update image version
+            -   name: Update Image Version
+                id: update_image_version
                 run: |
                     cd .github/tag-update
                     npm ci
                     ./update.mjs
             -   name: Commit changes
+                if: steps.update_image_version.outputs.changed == 'true'
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 run: |
+
+                    if [ -z "$IMAGE_NAME" ] || [ -z "$LOCAL_TAG" ] || [ -z "$REMOTE_TAG" ] || [ -z "$BRANCH_NAME" ] || [ -z "$OLD_IMAGE" ] || [ -z "$NEW_IMAGE" ]; then
+                        echo "IMAGE_NAME: $IMAGE_NAME || LOCAL_TAG: $LOCAL_TAG || REMOTE_TAG: $REMOTE_TAG || BRANCH_NAME: $BRANCH_NAME || OLD_IMAGE: $OLD_IMAGE || NEW_IMAGE: $NEW_IMAGE" 
+                        echo "Required environment variables are not set. Exiting."
+                        exit 1
+                    fi
+
                     git add docker-compose.yml
                     git commit -m "Update '$IMAGE_NAME' from '$LOCAL_TAG' to '$REMOTE_TAG'"
                     git push -f origin "$BRANCH_NAME"
