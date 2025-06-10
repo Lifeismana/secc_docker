@@ -513,7 +513,7 @@ services:
       - wud.tag.include=^\d+$$
 
   gitea:
-    image: gitea/gitea:1.24-rootless
+    image: gitea/gitea:nightly-linux-arm64-rootless
     container_name: gitea
     restart: unless-stopped
     healthcheck:
