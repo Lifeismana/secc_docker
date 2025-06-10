@@ -1115,7 +1115,7 @@ services:
 
   mazanoke:
     container_name: mazanoke
-    image: ghcr.io/civilblur/mazanoke:v1.1.4
+    image: ghcr.io/civilblur/mazanoke:v1.1.5
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "wget -O - http://localhost:80 &>/dev/null" ]
