@@ -12,7 +12,7 @@ FILTERED_JSON=$(jq '
       LOCAL_TAG: .image.tag.value,
       IMAGE_NAME: .image.name
     }
-  )
+  ) | unique_by(.IMAGE_NAME)
 ' <<< "$containers_json")
 
 JSON_PAYLOAD=$(jq -n --argjson data "$FILTERED_JSON" \
